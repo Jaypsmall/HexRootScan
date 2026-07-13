@@ -1,0 +1,28 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FF3333"
+        android:pathData="M54,20 C40,20 30,30 30,45 C30,60 40,75 54,75 C68,75 78,60 78,45 C78,30 68,20 54,20 Z" />
+    <!-- Cuernos -->
+    <path
+        android:fillColor="#FF3333"
+        android:pathData="M35,30 L20,10 L30,25 Z" />
+    <path
+        android:fillColor="#FF3333"
+        android:pathData="M73,30 L88,10 L78,25 Z" />
+    <!-- Ojos -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M45,40 A3,3 0 1,1 45,46 A3,3 0 1,1 45,40 Z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M63,40 A3,3 0 1,1 63,46 A3,3 0 1,1 63,40 Z" />
+    <!-- Sonrisa malvada -->
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="2"
+        android:pathData="M40,60 Q54,70 68,60" />
+</vector>
