@@ -14,7 +14,7 @@
 
 ---
 
-## 📸 Capturas de Pantalla y Demostración
+## 📸 Capturas de Pantalla
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/69bf4651-e195-41d1-9f96-25e85e33506d" width="30%" />
@@ -41,6 +41,16 @@
 *   **Android 8.0 (API 26) o superior.**
 
 ---
+
+## ⚠️ AVISO LEGAL
+
+Esta herramienta está diseñada ÚNICAMENTE para:
+- Pruebas de seguridad autorizadas
+- Auditorías de redes propias
+- Investigación educativa
+
+El uso no autorizado en sistemas sin consentimiento es ILEGAL.
+El autor no se responsabiliza por mal uso.
 
 ## 📄 Licencia y Derechos de Autor
 
