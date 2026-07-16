@@ -5,9 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -65,7 +65,7 @@ fun HexRootReconApp() {
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
-    // Función para ejecutar comandos como ROOT con soporte para Termux
+    // Función principal para ejecutar comandos ROOT
     fun runRootCommand(command: String) {
         scope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
@@ -77,9 +77,8 @@ fun HexRootReconApp() {
                 val reader = BufferedReader(InputStreamReader(process.inputStream))
                 val errorReader = BufferedReader(InputStreamReader(process.errorStream))
 
-                // Configurar entorno de Termux
-                val termuxPath = "/data/data/com.termux/files/usr/bin"
-                os.writeBytes("export PATH=\$PATH:$termuxPath\n")
+                // Configurar entorno de Termux para que encuentre todo
+                os.writeBytes("export PATH=/data/data/com.termux/files/usr/bin:\$PATH\n")
                 os.writeBytes("export LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib\n")
 
                 os.writeBytes("$command\n")
@@ -101,6 +100,29 @@ fun HexRootReconApp() {
         }
     }
 
+    // Funciones específicas para herramientas con intérpretes
+    fun ejecutarWhatWeb(target: String) = runRootCommand("/data/data/com.termux/files/usr/bin/ruby /data/data/com.termux/files/home/WhatWeb/whatweb $target")
+    fun ejecutarNikto(target: String) = runRootCommand("/data/data/com.termux/files/usr/bin/perl /data/data/com.termux/files/home/nikto/program/nikto.pl -h $target")
+    fun ejecutarDnsenum(target: String) = runRootCommand("/data/data/com.termux/files/usr/bin/perl /data/data/com.termux/files/home/dnsenum/dnsenum.pl $target")
+
+    fun instalarTodoYDarPermisos() {
+        val script = """
+            export PATH=/data/data/com.termux/files/usr/bin:${'$'}{PATH}
+            echo "[#] Actualizando repositorios..."
+            pkg update -y && pkg upgrade -y
+            echo "[#] Instalando Perl, Ruby y herramientas..."
+            pkg install perl ruby nmap dnsutils whois -y
+            
+            echo "[#] Aplicando permisos de ejecución..."
+            [ -f "/data/data/com.termux/files/home/nikto/program/nikto.pl" ] && chmod +x /data/data/com.termux/files/home/nikto/program/nikto.pl && echo "[✓] Nikto OK"
+            [ -f "/data/data/com.termux/files/home/WhatWeb/whatweb" ] && chmod +x /data/data/com.termux/files/home/WhatWeb/whatweb && echo "[✓] WhatWeb OK"
+            [ -f "/data/data/com.termux/files/home/dnsenum/dnsenum.pl" ] && chmod +x /data/data/com.termux/files/home/dnsenum/dnsenum.pl && echo "[✓] Dnsenum OK"
+            
+            echo "[✓] ¡Instalación y permisos completados!"
+        """.trimIndent()
+        runRootCommand(script)
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = HexBg,
@@ -111,9 +133,7 @@ fun HexRootReconApp() {
                         Image(
                             painter = painterResource(id = R.drawable.icono_scan),
                             contentDescription = "Logo",
-                            modifier = Modifier
-                                .size(40.dp)
-                                .padding(end = 8.dp)
+                            modifier = Modifier.size(40.dp).padding(end = 8.dp)
                         )
                         Text(
                             "HEX ROOT SCAN",
@@ -134,10 +154,10 @@ fun HexRootReconApp() {
                         modifier = Modifier.background(HexPanel).border(1.dp, HexAccent)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Instalar Herramientas", color = HexText) },
+                            text = { Text("Instalar Todo (Ruby/Perl/Tools)", color = HexText) },
                             onClick = {
                                 showMenu = false
-                                runRootCommand("pkg install nmap dnsutils whois -y || apt update && apt install nmap dnsutils whois -y")
+                                instalarTodoYDarPermisos()
                             }
                         )
                         DropdownMenuItem(
@@ -160,35 +180,26 @@ fun HexRootReconApp() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botones de Acción (Scroll Horizontal)
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(scrollState)
-                    .padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().horizontalScroll(scrollState).padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 HexButton("🛰 NMAP") { runRootCommand("nmap $options $target") }
                 HexButton("📡 WHOIS") { runRootCommand("whois $target") }
                 HexButton("🧬 DIG") { runRootCommand("dig $target ANY") }
-                HexButton("🔥 NIKTO") { runRootCommand("/data/data/com.termux/files/home/nikto/program/nikto.pl -h $target") }
-                HexButton("🌐 WHATWEB") { runRootCommand("/data/data/com.termux/files/home/WhatWeb/whatweb $target") }
-                HexButton("🧬 DNSENUM") { runRootCommand("dnsenum $target") }
+                HexButton("🔥 NIKTO") { ejecutarNikto(target) }
+                HexButton("🌐 WHATWEB") { ejecutarWhatWeb(target) }
+                HexButton("🧬 DNSENUM") { ejecutarDnsenum(target) }
                 HexButton("🔎 SUBS") { runRootCommand("curl -s https://crt.sh/?q=$target") }
                 HexButton("👁 SHODAN") { showShodanDialog = true }
-                HexButton("🛑 STOP", isError = true) { runRootCommand("pkill nmap || pkill nikto") }
+                HexButton("🛑 STOP", isError = true) { runRootCommand("pkill nmap || pkill perl || pkill ruby") }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Consola Terminal
             Text("LOGS:", color = HexAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black)
-                    .border(1.dp, HexAccent.copy(0.4f))
-                    .padding(8.dp)
+                modifier = Modifier.fillMaxSize().background(Color.Black).border(1.dp, HexAccent.copy(0.4f)).padding(8.dp)
             ) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(logs) { log ->
@@ -203,7 +214,6 @@ fun HexRootReconApp() {
             }
         }
 
-        // Diálogo para Shodan
         if (showShodanDialog) {
             AlertDialog(
                 onDismissRequest = { showShodanDialog = false },
@@ -216,24 +226,17 @@ fun HexRootReconApp() {
                         label = { Text("Introduce tu API Key", color = HexAccent.copy(0.6f)) },
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = androidx.compose.ui.text.TextStyle(color = Color.White),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HexAccent,
-                            unfocusedBorderColor = Color.DarkGray
-                        )
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HexAccent, unfocusedBorderColor = Color.DarkGray)
                     )
                 },
                 confirmButton = {
                     TextButton(onClick = {
                         showShodanDialog = false
                         runRootCommand("curl -s https://api.shodan.io/shodan/host/$target?key=$shodanKey")
-                    }) {
-                        Text("CONECTAR", color = HexAccent)
-                    }
+                    }) { Text("CONECTAR", color = HexAccent) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showShodanDialog = false }) {
-                        Text("CANCELAR", color = Color.Gray)
-                    }
+                    TextButton(onClick = { showShodanDialog = false }) { Text("CANCELAR", color = Color.Gray) }
                 }
             )
         }
@@ -247,11 +250,7 @@ fun HexInput(value: String, onValueChange: (String) -> Unit, label: String) {
         label = { Text(label, color = HexAccent.copy(0.6f)) },
         modifier = Modifier.fillMaxWidth(),
         textStyle = androidx.compose.ui.text.TextStyle(color = Color.White, fontFamily = FontFamily.Monospace),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = HexAccent,
-            unfocusedBorderColor = Color.DarkGray,
-            cursorColor = HexAccent
-        )
+        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HexAccent, unfocusedBorderColor = Color.DarkGray, cursorColor = HexAccent)
     )
 }
 
