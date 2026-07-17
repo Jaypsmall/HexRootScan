@@ -1,20 +1,20 @@
 # 😈 HEX ROOT SCAN (v1.0.0)
 
-**HEX ROOT SCAN** es una potente herramienta de auditoría de redes, pentesting y reconocimiento web diseñada exclusivamente para dispositivos Android. Con una interfaz limpia, oscura y optimizada, permite a desarrolladores y entusiastas de la ciberseguridad ejecutar análisis avanzados directamente desde la palma de la mano.
+**HEX ROOT SCAN** is a powerful network auditing, penetration testing, and web reconnaissance tool designed exclusively for Android devices. Featuring a clean, dark, and optimized interface, it allows developers and cybersecurity enthusiasts to run advanced analyses right from the palm of their hand.
 
 ---
 
-## 🚀 Características Principales
+## 🚀 Key Features
 
-*   **🕵️‍♂️ Análisis de Red Avanzado (Nmap integrado):** Ejecuta escaneos de puertos, detección de servicios y mapeo de redes de forma nativa.
-*   **🌐 Reconocimiento de Dominios (Whois & Dig):** Consulta la información de registro de dominios y analiza los registros DNS de cualquier host en segundos.
-*   **🔥 Escáner de Vulnerabilidades (Nikto):** Identifica configuraciones inseguras y archivos peligrosos en servidores web objetivos.
-*   **🛡️ Integración con Shodan:** Realiza búsquedas directamente en la base de datos de Shodan para identificar dispositivos conectados y puertos expuestos utilizando tu API Key.
-*   **⚡ Root Access Ready:** Diseñada para trabajar de forma nativa con privilegios de superusuario (`su`) para exprimir al máximo el rendimiento de las herramientas de red.
+*   **🕵️‍♂️ Advanced Network Analysis (Integrated Nmap):** Perform port scans, service detection, and network mapping natively.
+*   **🌐 Domain Reconnaissance (Whois & Dig):** Query domain registration information and analyze DNS records for any host in seconds.
+*   **🔥 Vulnerability Scanner (Nikto):** Identify insecure configurations and dangerous files on target web servers.
+*   **🛡️ Shodan Integration:** Search the Shodan database directly to identify connected devices and exposed ports using your API Key.
+*   **⚡ Root Access Ready:** Designed to work natively with superuser (`su`) privileges to maximize the performance of network tools.
 
 ---
 
-## 📸 Capturas de Pantalla
+## 📸 Screenshots
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/69bf4651-e195-41d1-9f96-25e85e33506d" width="30%" />
@@ -24,36 +24,35 @@
 ![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=flat&logo=kotlin&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)
 
+---
+
+## 🛠️ Architecture and Technologies
+
+*   **Platform:** Native Android (Jetpack Compose for a fluid, modern interface).
+*   **Language:** 100% Kotlin.
+*   **Security and Optimization:** Advanced code obfuscation using **R8 / ProGuard** to ensure the executable's integrity and lightweight footprint.
 
 ---
 
-## 🛠️ Arquitectura y Tecnologías
+## ⚠️ Requirements
 
-*   **Plataforma:** Android Nativo (Jetpack Compose para una interfaz fluida y moderna).
-*   **Lenguaje:** Kotlin 100%.
-*   **Seguridad y Optimización:** Ofuscación de código avanzada mediante **R8 / ProGuard** para garantizar la integridad y la ligereza del ejecutable.
-
----
-
-## ⚠️ Requisitos
-
-*   **Dispositivo Rooteado (Recomendado):** Para el correcto funcionamiento de las herramientas avanzadas como Nmap que requieren acceso `su`.
-*   **Android 8.0 (API 26) o superior.**
+*   **Rooted Device (Recommended):** Required for the proper functioning of advanced tools like Nmap that need `su` access.
+*   **Android 8.0 (API 26) or higher.**
 
 ---
 
-## ⚠️ AVISO LEGAL
+## ⚠️ LEGAL NOTICE
 
-Esta herramienta está diseñada ÚNICAMENTE para:
-- Pruebas de seguridad autorizadas
-- Auditorías de redes propias
-- Investigación educativa
+This tool is designed SOLELY for:
+- Authorized security testing
+- Auditing your own networks
+- Educational research
 
-El uso no autorizado en sistemas sin consentimiento es ILEGAL.
-El autor no se responsabiliza por mal uso.
+Unauthorized use on systems without consent is ILLEGAL.
+The author assumes no responsibility for misuse.
 
-## 📄 Licencia y Derechos de Autor
+## 📄 License and Copyright
 
-Copyright © 2026. Todos los derechos reservados. El código fuente de esta aplicación es propiedad privada del desarrollador. Queda prohibida la reproducción, distribución o modificación no autorizada de este software.
+Copyright © 2026. All rights reserved. The source code of this application is the private property of the developer. Unauthorized reproduction, distribution, or modification of this software is prohibited.
 
-*Desarrollado con 🧡 por un Dev Independiente.*
+*Developed with 🧡 by an Independent Dev.*
