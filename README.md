@@ -25,6 +25,12 @@
 
 ---
 
+### 😈 Releases HEX ROOT SCAN (v1.0.1)
+
+https://github.com/Jaypsmall/HexRootScan/releases/tag/v1.0.1
+
+---
+
 ## 🛠️ Architecture and Technologies
 
 *   **Platform:** Native Android (Jetpack Compose for a fluid, modern interface).
