@@ -17,8 +17,7 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/69bf4651-e195-41d1-9f96-25e85e33506d" width="30%" />
-  <img src="https://github.com/user-attachments/assets/0fb11c60-afc2-4434-8a69-88b433b56c98" width="30%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/master/asset/hexrootscan1.png" width="100%" />
 </p>
 
 ![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=flat&logo=kotlin&logoColor=white)
