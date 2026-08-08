@@ -1,7 +1,7 @@
 package com.example.hexrootscan.logic
 
 import android.app.Application
-import android.os.Environment
+import android.content.Context
 import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +17,8 @@ enum class Screen {
 }
 
 class ScannerViewModel(application: Application) : AndroidViewModel(application) {
+    private val prefs = application.getSharedPreferences("hex_prefs", Context.MODE_PRIVATE)
+    
     var currentScreen by mutableStateOf(Screen.SCANNER)
     
     var target by mutableStateOf("")
@@ -28,7 +30,7 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
     var terminalInput by mutableStateOf("")
 
     var isDarkMode by mutableStateOf(true)
-    var shodanKey by mutableStateOf("")
+    var shodanKey by mutableStateOf(prefs.getString("shodan_key", "") ?: "")
 
     // Explorer State
     var explorerFiles by mutableStateOf(listOf<File>())
@@ -42,6 +44,11 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
     init {
         if (!exportDir.exists()) exportDir.mkdirs()
         refreshExplorer()
+    }
+
+    fun updateShodanKey(newKey: String) {
+        shodanKey = newKey
+        prefs.edit().putString("shodan_key", newKey).apply()
     }
 
     private fun stripAnsi(text: String): String {
@@ -164,7 +171,6 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
             recommendations.addAll(getRecommendations(port))
         }
         
-        // Add general info
         if (target.isNotEmpty()) {
             recommendations.add("Whois Info" to "whois $target")
             recommendations.add("IP Info (CURL)" to "curl ipinfo.io/$target")
@@ -176,13 +182,11 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
 
     private fun parsePorts(text: String): List<Int> {
         val ports = mutableSetOf<Int>()
-        // Match 80/tcp, 443/udp, etc.
         val regex = Regex("""(\d{1,5})/(tcp|udp)""")
         regex.findAll(text).forEach { match ->
             match.groupValues[1].toIntOrNull()?.let { if (it in 1..65535) ports.add(it) }
         }
         
-        // If nothing found, search for standalone numbers in likely port lines
         if (ports.isEmpty()) {
             val lines = text.lines()
             lines.forEach { line ->
@@ -199,9 +203,7 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
     private fun getRecommendations(port: Int): List<Pair<String, String>> {
         val recs = mutableListOf<Pair<String, String>>()
         val t = target.ifEmpty { "TARGET" }
-        
         recs.add("Nmap Service Detect (P$port)" to "nmap -sV -p $port $t")
-        
         when (port) {
             80, 8080, 8000, 81 -> {
                 recs.add("HTTP Headers (P$port)" to "curl -I --max-time 8 http://$t:$port")

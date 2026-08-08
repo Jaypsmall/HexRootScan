@@ -128,7 +128,6 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                 modifier = Modifier
                     .width(280.dp)
                     .fillMaxHeight()
-                    .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Vertical))
                     .drawBehind {
                         val stroke = 1.dp.toPx()
                         val r = 16.dp.toPx()
@@ -148,6 +147,7 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                         .fillMaxWidth()
                         .height(180.dp)
                         .background(Brush.verticalGradient(listOf(currentAccentLow.copy(alpha = 0.3f), Color.Transparent)))
+                        .windowInsetsPadding(WindowInsets.statusBars)
                         .padding(20.dp),
                     contentAlignment = Alignment.BottomStart
                 ) {
@@ -286,29 +286,74 @@ fun ScannerScreen(viewModel: ScannerViewModel) {
             Column(modifier = Modifier.padding(8.dp)) {
                 HexInput(viewModel.target, { viewModel.target = it }, "TARGET HOST / IP", Icons.Default.Language, currentAccent)
                 Spacer(modifier = Modifier.height(6.dp))
-                Box {
-                    HexInput(
-                        value = viewModel.options,
-                        onValueChange = { viewModel.options = it },
-                        label = "SCAN OPTIONS",
-                        icon = Icons.Default.Tune,
-                        accent = currentAccent,
-                        trailingIcon = {
-                            IconButton(onClick = { showOptionsSuggestions = true }) {
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Suggestions", tint = currentAccent.copy(0.7f), modifier = Modifier.size(20.dp))
+                    var showHelpDialog by remember { mutableStateOf(false) }
+                    Box {
+                        HexInput(
+                            value = viewModel.options,
+                            onValueChange = { viewModel.options = it },
+                            label = "SCAN OPTIONS",
+                            icon = Icons.Default.Tune,
+                            accent = currentAccent,
+                            trailingIcon = {
+                                Row {
+                                    IconButton(onClick = { showHelpDialog = true }) {
+                                        Icon(Icons.Default.HelpOutline, contentDescription = "Help", tint = currentAccent.copy(0.7f), modifier = Modifier.size(20.dp))
+                                    }
+                                    IconButton(onClick = { showOptionsSuggestions = true }) {
+                                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Suggestions", tint = currentAccent.copy(0.7f), modifier = Modifier.size(20.dp))
+                                    }
+                                }
+                            }
+                        )
+                        DropdownMenu(
+                            expanded = showOptionsSuggestions,
+                            onDismissRequest = { showOptionsSuggestions = false },
+                            modifier = Modifier.background(currentPanel).border(1.dp, currentAccentLow)
+                        ) {
+                            listOf("Quick Ping" to "-sn", "Turbo Scan" to "-F -T5 --open", "Stealth" to "-sS -Pn -T4", "Aggressive" to "-A -v -T4", "All Ports" to "-p- -T4", "Services" to "-sV -sC", "Fast Scan" to "-F -T4", "OS Detect" to "-O --osscan-guess").forEach { (name, cmd) ->
+                                DropdownMenuItem(text = { Column { Text(name, color = currentAccent, fontSize = 12.sp, fontWeight = FontWeight.Bold); Text(cmd, color = currentText.copy(0.7f), fontSize = 10.sp, fontFamily = FontFamily.Monospace) } }, onClick = { viewModel.options = cmd; showOptionsSuggestions = false })
                             }
                         }
-                    )
-                    DropdownMenu(
-                        expanded = showOptionsSuggestions,
-                        onDismissRequest = { showOptionsSuggestions = false },
-                        modifier = Modifier.background(currentPanel).border(1.dp, currentAccentLow)
-                    ) {
-                        listOf("Quick Ping" to "-sn", "Turbo Scan" to "-F -T5 --open", "Stealth" to "-sS -Pn -T4", "Aggressive" to "-A -v -T4", "All Ports" to "-p- -T4", "Services" to "-sV -sC", "Fast Scan" to "-F -T4", "OS Detect" to "-O --osscan-guess").forEach { (name, cmd) ->
-                            DropdownMenuItem(text = { Column { Text(name, color = currentAccent, fontSize = 12.sp, fontWeight = FontWeight.Bold); Text(cmd, color = currentText.copy(0.7f), fontSize = 10.sp, fontFamily = FontFamily.Monospace) } }, onClick = { viewModel.options = cmd; showOptionsSuggestions = false })
-                        }
                     }
-                }
+
+                    if (showHelpDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showHelpDialog = false },
+                            containerColor = currentPanel,
+                            title = { Text("NMAP PARAMETERS HELP", color = currentAccent, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold) },
+                            text = {
+                                SelectionContainer {
+                                    Text(
+                                        text = """
+-sS  -> SYN Scan (rápido, sigiloso)
+-sT  -> TCP Connect Scan
+-sU  -> UDP Scan
+-sV  -> Detección de versiones
+-A   -> Escaneo agresivo (SO, scripts, traceroute)
+-O   -> Detección de sistema operativo
+--script vuln -> Scripts de vulnerabilidades
+-p 80,443 -> Puertos específicos
+-p-  -> Todos los puertos (1–65535)
+-T4  -> Acelera el escaneo
+--open -> Solo mostrar puertos abiertos
+-v   -> Verbose
+--script xxx -> Ejecuta un script NSE
+
+Puedes combinar parámetros en la caja de “extra”.
+                                        """.trimIndent(),
+                                        color = currentText,
+                                        fontFamily = FontFamily.Monospace,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            },
+                            confirmButton = {
+                                TextButton(onClick = { showHelpDialog = false }) {
+                                    Text("UNDERSTOOD", color = currentAccent, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        )
+                    }
             }
         }
 
@@ -373,14 +418,18 @@ fun ScannerScreen(viewModel: ScannerViewModel) {
                 confirmButton = { 
                     TextButton(onClick = { 
                         showShodanDialog = false 
+                        viewModel.updateShodanKey(viewModel.shodanKey)
                         viewModel.runRootCommand("curl -s https://api.shodan.io/shodan/host/${viewModel.target}?key=${viewModel.shodanKey}") 
                     }) { 
                         Text("CONNECT", color = currentAccent, fontWeight = FontWeight.Bold) 
                     } 
                 },
                 dismissButton = { 
-                    TextButton(onClick = { showShodanDialog = false }) { 
-                        Text("CANCEL", color = Color.Gray) 
+                    TextButton(onClick = { 
+                        showShodanDialog = false 
+                        viewModel.runRootCommand("curl -s https://internetdb.shodan.io/${viewModel.target}")
+                    }) { 
+                        Text("FREE SCAN", color = currentAccent.copy(0.7f), fontWeight = FontWeight.Bold) 
                     } 
                 }
             )
