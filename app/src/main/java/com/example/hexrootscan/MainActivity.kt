@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.hexrootscan.logic.ScannerViewModel
 import com.example.hexrootscan.logic.Screen
@@ -49,6 +51,8 @@ import com.example.hexrootscan.ui.components.HexButton
 import com.example.hexrootscan.ui.components.HexInput
 import com.example.hexrootscan.ui.theme.*
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -169,6 +173,7 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                 }
                 DrawerItem("ROOT EXPLORER", Icons.Default.FolderZip, viewModel.currentScreen == Screen.EXPLORER, currentAccent, currentPanel) { 
                     viewModel.currentScreen = Screen.EXPLORER
+                    viewModel.refreshExplorer()
                     scope.launch { drawerState.close() } 
                 }
                 DrawerItem("SHODAN INTEL", Icons.Default.Search, viewModel.currentScreen == Screen.SHODAN, currentAccent, currentPanel) { 
@@ -224,6 +229,14 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                                     }
                                 )
                                 DropdownMenuItem(
+                                    text = { Text("EXPORT RESULTS", color = currentText) },
+                                    leadingIcon = { Icon(Icons.Default.Save, contentDescription = null, tint = currentAccent) },
+                                    onClick = {
+                                        showMenu = false
+                                        viewModel.exportLogs()
+                                    }
+                                )
+                                DropdownMenuItem(
                                     text = { Text("CLEAR TERMINAL", color = currentText) },
                                     leadingIcon = { Icon(Icons.Default.DeleteSweep, contentDescription = null, tint = currentAccent) },
                                     onClick = {
@@ -237,11 +250,12 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = currentPanel)
                 )
             }
-        ) { padding ->
-            Box(modifier = Modifier.padding(padding)) {
+        ) { paddingValues ->
+            Box(modifier = Modifier.padding(paddingValues)) {
                 when (viewModel.currentScreen) {
                     Screen.SCANNER -> ScannerScreen(viewModel)
                     Screen.TERMINAL -> TerminalScreen(viewModel)
+                    Screen.EXPLORER -> ExplorerScreen(viewModel)
                     else -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text("MÓDULO EN DESARROLLO", color = currentAccent, fontWeight = FontWeight.Bold)
                     }
@@ -262,8 +276,8 @@ fun ScannerScreen(viewModel: ScannerViewModel) {
     val currentOk = if (isDarkMode) HexOk else Color(0xFF008800)
     val terminalBg = if (isDarkMode) Color.Black else Color(0xFFE9EDF0)
 
-    var showShodanDialog by remember { mutableStateOf(false) }
     var showOptionsSuggestions by remember { mutableStateOf(false) }
+    var showShodanDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
     Column(modifier = Modifier.padding(8.dp).fillMaxSize()) {
@@ -302,6 +316,7 @@ fun ScannerScreen(viewModel: ScannerViewModel) {
         Text("QUICK ACTIONS", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 4.dp))
         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(scrollState), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             HexButton("NMAP", Icons.Default.Router, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { val t = viewModel.target.trim(); if (t.isNotEmpty()) viewModel.runRootCommand("nmap ${viewModel.options} $t") else viewModel.logs = viewModel.logs + "![ERR] NO TARGET SPECIFIED" }
+            HexButton("TRIAGE", Icons.Default.Explore, accent = Color.Yellow, accentLow = Color.Yellow.copy(0.2f), panel = currentPanel) { viewModel.runTriage() }
             HexButton("NIKTO", Icons.Default.BugReport, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { val t = viewModel.target.trim(); if (t.isNotEmpty()) viewModel.runRootCommand("/data/data/com.termux/files/usr/bin/perl /data/data/com.termux/files/home/nikto/program/nikto.pl -h $t") else viewModel.logs = viewModel.logs + "![ERR] NO TARGET SPECIFIED" }
             HexButton("WHATWEB", Icons.Default.Language, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { val t = viewModel.target.trim(); if (t.isNotEmpty()) viewModel.runRootCommand("/data/data/com.termux/files/usr/bin/ruby /data/data/com.termux/files/home/WhatWeb/whatweb $t") else viewModel.logs = viewModel.logs + "![ERR] NO TARGET SPECIFIED" }
             HexButton("WHOIS", Icons.Default.Info, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { val t = viewModel.target.trim(); if (t.isNotEmpty()) viewModel.runRootCommand("whois $t") else viewModel.logs = viewModel.logs + "![ERR] NO TARGET SPECIFIED" }
@@ -314,7 +329,7 @@ fun ScannerScreen(viewModel: ScannerViewModel) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 4.dp).fillMaxWidth()) {
             Icon(Icons.Default.Terminal, contentDescription = null, tint = currentAccent, modifier = Modifier.size(14.dp))
             Spacer(Modifier.width(6.dp))
-            Text("LIVE TERMINAL OUTPUT", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Text("LIVE TERMINAL OUTPUT (TRIAGE MODE)", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.weight(1f))
             IconButton(onClick = { viewModel.isDarkMode = !viewModel.isDarkMode }, modifier = Modifier.size(24.dp)) { Icon(imageVector = Icons.Default.DarkMode, contentDescription = "Theme Toggle", tint = currentAccent.copy(alpha = 0.5f), modifier = Modifier.size(16.dp)) }
         }
@@ -324,20 +339,98 @@ fun ScannerScreen(viewModel: ScannerViewModel) {
             SelectionContainer {
                 LazyColumn(modifier = Modifier.fillMaxSize().padding(10.dp)) {
                     items(viewModel.logs) { log ->
-                        Text(text = log, color = when { log.startsWith("!") -> currentAccent; log.startsWith("[#]") -> if (isDarkMode) Color.Cyan else Color(0xFF0056D2); log.startsWith("[✔]") -> currentOk; else -> currentOk.copy(alpha = 0.8f) }, fontFamily = FontFamily.Monospace, fontSize = 11.sp, lineHeight = 14.sp)
+                        val color = when {
+                            log.contains("open", true) || log.contains("vulnerable", true) || log.contains("found", true) || log.contains("[✔]", true) -> currentOk
+                            log.contains("port", true) || log.contains("service", true) || log.contains("warning", true) || log.contains("[#]", true) -> Color.Yellow
+                            log.contains("![ERR]", true) || log.contains("failed", true) || log.contains("denied", true) -> Color.Red
+                            else -> currentText.copy(alpha = 0.7f)
+                        }
+                        Text(text = log, color = color, fontFamily = FontFamily.Monospace, fontSize = 11.sp, lineHeight = 14.sp)
                     }
                 }
             }
         }
 
+        // --- SHODAN DIALOG ---
         if (showShodanDialog) {
             AlertDialog(
                 onDismissRequest = { showShodanDialog = false },
                 containerColor = currentPanel,
                 title = { Text("SHODAN API ACCESS", color = currentAccent, fontFamily = FontFamily.Monospace) },
-                text = { OutlinedTextField(value = viewModel.shodanKey, onValueChange = { viewModel.shodanKey = it }, label = { Text("API KEY", color = currentAccent.copy(0.5f)) }, modifier = Modifier.fillMaxWidth(), textStyle = TextStyle(color = if (isDarkMode) Color.White else Color.Black, fontFamily = FontFamily.Monospace), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = currentAccent, unfocusedBorderColor = Color.DarkGray)) },
-                confirmButton = { TextButton(onClick = { showShodanDialog = false; viewModel.runRootCommand("curl -s https://api.shodan.io/shodan/host/${viewModel.target}?key=${viewModel.shodanKey}") }) { Text("CONNECT", color = currentAccent, fontWeight = FontWeight.Bold) } },
-                dismissButton = { TextButton(onClick = { showShodanDialog = false }) { Text("CANCEL", color = Color.Gray) } }
+                text = { 
+                    OutlinedTextField(
+                        value = viewModel.shodanKey, 
+                        onValueChange = { viewModel.shodanKey = it }, 
+                        label = { Text("API KEY", color = currentAccent.copy(0.5f)) }, 
+                        modifier = Modifier.fillMaxWidth(), 
+                        textStyle = TextStyle(color = if (isDarkMode) Color.White else Color.Black, fontFamily = FontFamily.Monospace),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = currentAccent,
+                            unfocusedBorderColor = Color.DarkGray
+                        )
+                    ) 
+                },
+                confirmButton = { 
+                    TextButton(onClick = { 
+                        showShodanDialog = false 
+                        viewModel.runRootCommand("curl -s https://api.shodan.io/shodan/host/${viewModel.target}?key=${viewModel.shodanKey}") 
+                    }) { 
+                        Text("CONNECT", color = currentAccent, fontWeight = FontWeight.Bold) 
+                    } 
+                },
+                dismissButton = { 
+                    TextButton(onClick = { showShodanDialog = false }) { 
+                        Text("CANCEL", color = Color.Gray) 
+                    } 
+                }
+            )
+        }
+
+        // --- TRIAGE DIALOG ---
+        if (viewModel.showTriageDialog) {
+            AlertDialog(
+                onDismissRequest = { viewModel.showTriageDialog = false },
+                containerColor = currentPanel,
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                title = { 
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Explore, contentDescription = null, tint = Color.Yellow)
+                        Spacer(Modifier.width(8.dp))
+                        Text("🧭 TRIAGE ENGINE", color = Color.Yellow, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
+                    }
+                },
+                text = {
+                    Column {
+                        Text("TARGET: ${viewModel.target.ifEmpty { "UNDEFINED" }}", color = currentAccent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(8.dp))
+                        if (viewModel.triageResults.isEmpty()) {
+                            Text("NO OPEN PORTS DETECTED IN LOGS.", color = currentText.copy(0.6f), fontSize = 11.sp)
+                        } else {
+                            LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
+                                items(viewModel.triageResults) { (label, cmd) ->
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable { 
+                                            viewModel.showTriageDialog = false
+                                            viewModel.runRootCommand(cmd) 
+                                        },
+                                        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(0.3f)),
+                                        border = BorderStroke(1.dp, Color.Yellow.copy(0.3f))
+                                    ) {
+                                        Column(modifier = Modifier.padding(8.dp)) {
+                                            Text(label, color = Color.Yellow, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            Text(cmd, color = currentText, fontSize = 9.sp, fontFamily = FontFamily.Monospace)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.showTriageDialog = false }) {
+                        Text("CLOSE", color = Color.Gray, fontWeight = FontWeight.Bold)
+                    }
+                }
             )
         }
     }
@@ -353,7 +446,6 @@ fun TerminalScreen(viewModel: ScannerViewModel) {
     
     val listState = rememberLazyListState()
     
-    // Auto-scroll al final cuando hay nuevos logs
     LaunchedEffect(viewModel.terminalLogs.size) {
         if (viewModel.terminalLogs.isNotEmpty()) {
             listState.animateScrollToItem(viewModel.terminalLogs.size - 1)
@@ -371,7 +463,7 @@ fun TerminalScreen(viewModel: ScannerViewModel) {
                             text = log,
                             color = when {
                                 log.startsWith("root@hex:#") -> currentAccent
-                                log.startsWith("![ERR]") -> Color.Red
+                                log.contains("![ERR]") || log.contains("![CRITICAL]") -> Color.Red
                                 else -> currentOk
                             },
                             fontFamily = FontFamily.Monospace,
@@ -403,6 +495,100 @@ fun TerminalScreen(viewModel: ScannerViewModel) {
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { viewModel.runTerminalCommand() }),
                 singleLine = true
+            )
+        }
+    }
+}
+
+@Composable
+fun ExplorerScreen(viewModel: ScannerViewModel) {
+    val isDarkMode = viewModel.isDarkMode
+    val currentAccent = if (isDarkMode) HexAccent else Color(0xFF0066FF)
+    val currentPanel = if (isDarkMode) HexPanel else Color.White
+    val currentText = if (isDarkMode) HexText else Color(0xFF333333)
+
+    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("ROOT EXPORTS EXPLORER", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.weight(1f))
+            IconButton(onClick = { viewModel.refreshExplorer() }) {
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = currentAccent)
+            }
+        }
+        
+        Card(
+            modifier = Modifier.fillMaxSize(),
+            colors = CardDefaults.cardColors(containerColor = currentPanel),
+            border = BorderStroke(1.dp, currentAccent.copy(0.3f))
+        ) {
+            if (viewModel.explorerFiles.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("NO EXPORTED FILES FOUND", color = currentText.copy(0.5f), fontFamily = FontFamily.Monospace)
+                }
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+                    items(viewModel.explorerFiles) { file ->
+                        ListItem(
+                            modifier = Modifier.fillMaxWidth().clickable { viewModel.openFile(file) },
+                            headlineContent = { Text(file.name, color = currentText, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold) },
+                            supportingContent = { 
+                                val date = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(file.lastModified()))
+                                Text("${file.length() / 1024} KB | $date", color = currentText.copy(0.6f), fontSize = 10.sp) 
+                            },
+                            leadingContent = { Icon(Icons.Default.Description, contentDescription = null, tint = currentAccent) },
+                            trailingContent = {
+                                IconButton(onClick = { 
+                                    file.delete()
+                                    viewModel.refreshExplorer()
+                                }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red.copy(0.6f))
+                                }
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                        )
+                        HorizontalDivider(color = currentAccent.copy(0.1f))
+                    }
+                }
+            }
+        }
+
+        // --- Visor de Archivos ---
+        if (viewModel.selectedFileContent != null) {
+            AlertDialog(
+                onDismissRequest = { viewModel.selectedFileContent = null },
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                containerColor = currentPanel,
+                title = { 
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("REPORT VIEWER", color = currentAccent, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.weight(1f))
+                        IconButton(onClick = { viewModel.selectedFileContent = null }) {
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = currentAccent)
+                        }
+                    }
+                },
+                text = {
+                    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(0.2f), RoundedCornerShape(8.dp)).border(1.dp, currentAccent.copy(0.2f), RoundedCornerShape(8.dp)).padding(8.dp)) {
+                        SelectionContainer {
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                item {
+                                    Text(
+                                        text = viewModel.selectedFileContent ?: "",
+                                        color = if (isDarkMode) Color.White else Color.Black,
+                                        fontFamily = FontFamily.Monospace,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.selectedFileContent = null }) {
+                        Text("CLOSE", color = currentAccent, fontWeight = FontWeight.Bold)
+                    }
+                }
             )
         }
     }
