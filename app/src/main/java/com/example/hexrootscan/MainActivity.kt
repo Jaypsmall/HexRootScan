@@ -2,55 +2,74 @@ package com.example.hexrootscan
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.hexrootscan.ui.theme.HexRootScanTheme
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.hexrootscan.logic.ScannerViewModel
+import com.example.hexrootscan.logic.Screen
+import com.example.hexrootscan.ui.components.DrawerItem
+import com.example.hexrootscan.ui.components.HexButton
+import com.example.hexrootscan.ui.components.HexInput
+import com.example.hexrootscan.ui.theme.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.BufferedReader
-import java.io.DataOutputStream
-import java.io.InputStreamReader
-
-// --- SISTEMA DE COLORES HEX DEMON ---
-val HexBg = Color(0xFF050505)
-val HexPanel = Color(0xFF0F0F0F)
-val HexAccent = Color(0xFFFF0000)
-val HexAccentLow = Color(0xFF550000)
-val HexText = Color(0xFFBBBBBB)
-val HexOk = Color(0xFF00FF41)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        val viewModel: ScannerViewModel by lazy { 
+            androidx.lifecycle.ViewModelProvider(this)[ScannerViewModel::class.java]
+        }
+        
         setContent {
-            HexRootScanTheme {
-                HexRootReconApp()
+            LaunchedEffect(viewModel.isDarkMode) {
+                enableEdgeToEdge(
+                    statusBarStyle = if (viewModel.isDarkMode) {
+                        SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+                    } else {
+                        SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+                    }
+                )
+            }
+            
+            HexRootScanTheme(darkTheme = viewModel.isDarkMode) {
+                HexRootReconApp(viewModel)
             }
         }
     }
@@ -58,10 +77,184 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HexRootReconApp() {
-    var isDarkMode by remember { mutableStateOf(true) }
-    
+fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
+    val isDarkMode = viewModel.isDarkMode
+    val currentPanel = if (isDarkMode) HexPanel else Color.White
+    val currentAccent = if (isDarkMode) HexAccent else Color(0xFF0066FF)
+    val currentAccentLow = if (isDarkMode) HexAccentLow else Color(0xFFD0E0FF)
+    val currentText = if (isDarkMode) HexText else Color(0xFF333333)
     val currentBg = if (isDarkMode) HexBg else Color(0xFFF4F7FA)
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    var showMenu by remember { mutableStateOf(false) }
+
+    val titleShadow = Shadow(
+        color = Color.Black.copy(alpha = 0.8f),
+        offset = Offset(6f, 6f),
+        blurRadius = 12f
+    )
+
+    val hexTitle = buildAnnotatedString {
+        val capsStyle = SpanStyle(
+            color = if (isDarkMode) HexAccent else Color(0xFF3E6BDB),
+            fontWeight = FontWeight.Black,
+            shadow = titleShadow,
+            fontFamily = FontFamily.Monospace
+        )
+        val themeStyle = SpanStyle(
+            color = if (isDarkMode) Color.White else Color(0xFF0D0D0D),
+            fontWeight = FontWeight.Black,
+            shadow = titleShadow,
+            fontFamily = FontFamily.Monospace
+        )
+        withStyle(style = themeStyle) { append("😈 ") }
+        withStyle(style = capsStyle) { append("HEX ") }
+        withStyle(style = capsStyle) { append("ROOT ") }
+        withStyle(style = themeStyle) { append("SCAN") }
+    }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                drawerContainerColor = currentPanel,
+                drawerTonalElevation = 0.dp,
+                drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
+                modifier = Modifier
+                    .width(280.dp)
+                    .fillMaxHeight()
+                    .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Vertical))
+                    .drawBehind {
+                        val stroke = 1.dp.toPx()
+                        val r = 16.dp.toPx()
+                        val p = Path().apply {
+                            moveTo(0f, 0f)
+                            lineTo(size.width - r, 0f)
+                            arcTo(Rect(size.width - 2 * r, 0f, size.width, 2 * r), -90f, 90f, false)
+                            lineTo(size.width, size.height - r)
+                            arcTo(Rect(size.width - 2 * r, size.height - 2 * r, size.width, size.height), 0f, 90f, false)
+                            lineTo(0f, size.height)
+                        }
+                        drawPath(p, currentAccentLow, style = Stroke(stroke))
+                    }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .background(Brush.verticalGradient(listOf(currentAccentLow.copy(alpha = 0.3f), Color.Transparent)))
+                        .padding(20.dp),
+                    contentAlignment = Alignment.BottomStart
+                ) {
+                    Column {
+                        Text("😈", fontSize = 40.sp, modifier = Modifier.padding(bottom = 8.dp), style = TextStyle(shadow = titleShadow))
+                        Row {
+                            Text("HEX ROOT ", color = currentAccent, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace, shadow = titleShadow))
+                            Text("SCAN", color = if (isDarkMode) Color.White else Color(0xFF0D0D0D), style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace, shadow = titleShadow))
+                        }
+                        Text("CONTROL PANEL v2.0", color = currentText, fontSize = 10.sp, letterSpacing = 2.sp)
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                DrawerItem("NETWORK SCANNER", Icons.Default.Radar, viewModel.currentScreen == Screen.SCANNER, currentAccent, currentPanel) { 
+                    viewModel.currentScreen = Screen.SCANNER
+                    scope.launch { drawerState.close() } 
+                }
+                DrawerItem("TERMINAL ACCESS", Icons.Default.Terminal, viewModel.currentScreen == Screen.TERMINAL, currentAccent, currentPanel) { 
+                    viewModel.currentScreen = Screen.TERMINAL
+                    scope.launch { drawerState.close() } 
+                }
+                DrawerItem("ROOT EXPLORER", Icons.Default.FolderZip, viewModel.currentScreen == Screen.EXPLORER, currentAccent, currentPanel) { 
+                    viewModel.currentScreen = Screen.EXPLORER
+                    scope.launch { drawerState.close() } 
+                }
+                DrawerItem("SHODAN INTEL", Icons.Default.Search, viewModel.currentScreen == Screen.SHODAN, currentAccent, currentPanel) { 
+                    viewModel.currentScreen = Screen.SHODAN
+                    scope.launch { drawerState.close() } 
+                }
+                DrawerItem("SYSTEM SETTINGS", Icons.Default.Settings, viewModel.currentScreen == Screen.SETTINGS, currentAccent, currentPanel) { 
+                    viewModel.currentScreen = Screen.SETTINGS
+                    scope.launch { drawerState.close() } 
+                }
+                
+                Spacer(modifier = Modifier.weight(1f))
+                
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("HexRootScan v1.0.1", color = currentText.copy(alpha = 0.6f), fontSize = 10.sp, fontFamily = FontFamily.Monospace)
+                    Text("Created by JAYLIZ with ❤️", color = currentText.copy(alpha = 0.6f), fontSize = 10.sp, fontFamily = FontFamily.Monospace)
+                }
+            }
+        }
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = currentBg,
+            topBar = {
+                CenterAlignedTopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Open Menu", tint = currentAccent)
+                        }
+                    },
+                    title = {
+                        Text(text = hexTitle, modifier = Modifier.offset(x = (-12).dp), style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black, letterSpacing = 2.sp))
+                    },
+                    actions = {
+                        if (viewModel.currentScreen == Screen.SCANNER) {
+                            IconButton(onClick = { showMenu = !showMenu }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "Options", tint = currentAccent)
+                            }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false },
+                                modifier = Modifier.background(currentPanel).border(1.dp, currentAccent)
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("FULL INSTALL (RUBY/PERL)", color = currentText) },
+                                    leadingIcon = { Icon(Icons.Default.Download, contentDescription = null, tint = currentAccent) },
+                                    onClick = {
+                                        showMenu = false
+                                        viewModel.runRootCommand("pkg update -y && pkg install perl ruby nmap dnsutils whois -y")
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("CLEAR TERMINAL", color = currentText) },
+                                    leadingIcon = { Icon(Icons.Default.DeleteSweep, contentDescription = null, tint = currentAccent) },
+                                    onClick = {
+                                        showMenu = false
+                                        viewModel.clearLogs()
+                                    }
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = currentPanel)
+                )
+            }
+        ) { padding ->
+            Box(modifier = Modifier.padding(padding)) {
+                when (viewModel.currentScreen) {
+                    Screen.SCANNER -> ScannerScreen(viewModel)
+                    Screen.TERMINAL -> TerminalScreen(viewModel)
+                    else -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("MÓDULO EN DESARROLLO", color = currentAccent, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScannerScreen(viewModel: ScannerViewModel) {
+    val isDarkMode = viewModel.isDarkMode
     val currentPanel = if (isDarkMode) HexPanel else Color.White
     val currentAccent = if (isDarkMode) HexAccent else Color(0xFF0066FF)
     val currentAccentLow = if (isDarkMode) HexAccentLow else Color(0xFFD0E0FF)
@@ -69,214 +262,69 @@ fun HexRootReconApp() {
     val currentOk = if (isDarkMode) HexOk else Color(0xFF008800)
     val terminalBg = if (isDarkMode) Color.Black else Color(0xFFE9EDF0)
 
-    var target by remember { mutableStateOf("") }
-    var options by remember { mutableStateOf("-sS -Pn -T4") }
-    var logs by remember { mutableStateOf(listOf("💀 SYSTEM INITIALIZED - ROOT ACCESS GRANTED")) }
-    var showMenu by remember { mutableStateOf(false) }
     var showShodanDialog by remember { mutableStateOf(false) }
     var showOptionsSuggestions by remember { mutableStateOf(false) }
-    var shodanKey by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
-    fun runRootCommand(command: String) {
-        scope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { logs = logs + "[#] > $command" }
-            try {
-                val process = Runtime.getRuntime().exec("su")
-                val os = DataOutputStream(process.outputStream)
-                os.writeBytes("export PATH=/data/data/com.termux/files/usr/bin:\$PATH\n")
-                os.writeBytes("export LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib\n")
-                os.writeBytes("$command\n")
-                os.writeBytes("exit\n")
-                os.flush()
-
-                BufferedReader(InputStreamReader(process.inputStream)).forEachLine { line ->
-                    scope.launch(Dispatchers.Main) { logs = logs + line }
-                }
-                BufferedReader(InputStreamReader(process.errorStream)).forEachLine { line ->
-                    scope.launch(Dispatchers.Main) { logs = logs + "![ERR] $line" }
-                }
-                process.waitFor()
-                withContext(Dispatchers.Main) { logs = logs + "[✔] SESSION_FINISHED" }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { logs = logs + "![CRITICAL] ${e.message}" }
-            }
-        }
-    }
-
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = currentBg,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "HEX ROOT SCAN",
-                            color = currentAccent,
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Black,
-                                fontFamily = FontFamily.Monospace,
-                                letterSpacing = 2.sp
-                            )
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showMenu = !showMenu }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Config", tint = currentAccent)
-                    }
+    Column(modifier = Modifier.padding(8.dp).fillMaxSize()) {
+        Text("COMMAND CONFIGURATION", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 4.dp))
+        Card(colors = CardDefaults.cardColors(containerColor = currentPanel), border = BorderStroke(1.dp, currentAccentLow), shape = RoundedCornerShape(12.dp)) {
+            Column(modifier = Modifier.padding(8.dp)) {
+                HexInput(viewModel.target, { viewModel.target = it }, "TARGET HOST / IP", Icons.Default.Language, currentAccent)
+                Spacer(modifier = Modifier.height(6.dp))
+                Box {
+                    HexInput(
+                        value = viewModel.options,
+                        onValueChange = { viewModel.options = it },
+                        label = "SCAN OPTIONS",
+                        icon = Icons.Default.Tune,
+                        accent = currentAccent,
+                        trailingIcon = {
+                            IconButton(onClick = { showOptionsSuggestions = true }) {
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Suggestions", tint = currentAccent.copy(0.7f), modifier = Modifier.size(20.dp))
+                            }
+                        }
+                    )
                     DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false },
-                        modifier = Modifier.background(currentPanel).border(1.dp, currentAccent)
+                        expanded = showOptionsSuggestions,
+                        onDismissRequest = { showOptionsSuggestions = false },
+                        modifier = Modifier.background(currentPanel).border(1.dp, currentAccentLow)
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("FULL INSTALL (RUBY/PERL)", color = currentText) },
-                            leadingIcon = { Icon(Icons.Default.Download, contentDescription = null, tint = currentAccent) },
-                            onClick = {
-                                showMenu = false
-                                runRootCommand("pkg update -y && pkg install perl ruby nmap dnsutils whois -y")
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("CLEAR TERMINAL", color = currentText) },
-                            leadingIcon = { Icon(Icons.Default.DeleteSweep, contentDescription = null, tint = currentAccent) },
-                            onClick = {
-                                showMenu = false
-                                logs = listOf("💀 TERMINAL RESET")
-                            }
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = currentPanel)
-            )
-        }
-    ) { padding ->
-        Column(modifier = Modifier.padding(padding).padding(8.dp).fillMaxSize()) {
-            
-            // --- SECCIÓN: CONFIGURACIÓN ---
-            Text("COMMAND CONFIGURATION", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 4.dp))
-            Card(
-                colors = CardDefaults.cardColors(containerColor = currentPanel),
-                border = BorderStroke(1.dp, currentAccentLow),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(modifier = Modifier.padding(8.dp)) {
-                    HexInput(target, { target = it }, "TARGET HOST / IP", Icons.Default.Language, currentAccent)
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Box {
-                        HexInput(
-                            value = options,
-                            onValueChange = { options = it },
-                            label = "SCAN OPTIONS",
-                            icon = Icons.Default.Tune,
-                            accent = currentAccent,
-                            trailingIcon = {
-                                IconButton(onClick = { showOptionsSuggestions = true }) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Suggestions", tint = currentAccent.copy(0.7f), modifier = Modifier.size(20.dp))
-                                }
-                            }
-                        )
-                        DropdownMenu(
-                            expanded = showOptionsSuggestions,
-                            onDismissRequest = { showOptionsSuggestions = false },
-                            modifier = Modifier.background(currentPanel).border(1.dp, currentAccentLow)
-                        ) {
-                            listOf(
-                                "Quick Ping" to "-sn",
-                                "Turbo Scan" to "-F -T5 --open",
-                                "Stealth" to "-sS -Pn -T4",
-                                "Aggressive" to "-A -v -T4",
-                                "All Ports" to "-p- -T4",
-                                "Services" to "-sV -sC",
-                                "Fast Scan" to "-F -T4",
-                                "OS Detect" to "-O --osscan-guess"
-                            ).forEach { (name, cmd) ->
-                                DropdownMenuItem(
-                                    text = { Column {
-                                        Text(name, color = currentAccent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                        Text(cmd, color = currentText.copy(0.7f), fontSize = 10.sp, fontFamily = FontFamily.Monospace)
-                                    }},
-                                    onClick = {
-                                        options = cmd
-                                        showOptionsSuggestions = false
-                                    }
-                                )
-                            }
+                        listOf("Quick Ping" to "-sn", "Turbo Scan" to "-F -T5 --open", "Stealth" to "-sS -Pn -T4", "Aggressive" to "-A -v -T4", "All Ports" to "-p- -T4", "Services" to "-sV -sC", "Fast Scan" to "-F -T4", "OS Detect" to "-O --osscan-guess").forEach { (name, cmd) ->
+                            DropdownMenuItem(text = { Column { Text(name, color = currentAccent, fontSize = 12.sp, fontWeight = FontWeight.Bold); Text(cmd, color = currentText.copy(0.7f), fontSize = 10.sp, fontFamily = FontFamily.Monospace) } }, onClick = { viewModel.options = cmd; showOptionsSuggestions = false })
                         }
                     }
                 }
             }
+        }
 
-            Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        Text("QUICK ACTIONS", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 4.dp))
+        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(scrollState), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            HexButton("NMAP", Icons.Default.Router, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { val t = viewModel.target.trim(); if (t.isNotEmpty()) viewModel.runRootCommand("nmap ${viewModel.options} $t") else viewModel.logs = viewModel.logs + "![ERR] NO TARGET SPECIFIED" }
+            HexButton("NIKTO", Icons.Default.BugReport, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { val t = viewModel.target.trim(); if (t.isNotEmpty()) viewModel.runRootCommand("/data/data/com.termux/files/usr/bin/perl /data/data/com.termux/files/home/nikto/program/nikto.pl -h $t") else viewModel.logs = viewModel.logs + "![ERR] NO TARGET SPECIFIED" }
+            HexButton("WHATWEB", Icons.Default.Language, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { val t = viewModel.target.trim(); if (t.isNotEmpty()) viewModel.runRootCommand("/data/data/com.termux/files/usr/bin/ruby /data/data/com.termux/files/home/WhatWeb/whatweb $t") else viewModel.logs = viewModel.logs + "![ERR] NO TARGET SPECIFIED" }
+            HexButton("WHOIS", Icons.Default.Info, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { val t = viewModel.target.trim(); if (t.isNotEmpty()) viewModel.runRootCommand("whois $t") else viewModel.logs = viewModel.logs + "![ERR] NO TARGET SPECIFIED" }
+            HexButton("DNSENUM", Icons.Default.Dns, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { val t = viewModel.target.trim(); if (t.isNotEmpty()) viewModel.runRootCommand("/data/data/com.termux/files/usr/bin/perl /data/data/com.termux/files/home/dnsenum/dnsenum.pl $t") else viewModel.logs = viewModel.logs + "![ERR] NO TARGET SPECIFIED" }
+            HexButton("SHODAN", Icons.Default.Search, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { showShodanDialog = true }
+            HexButton("STOP", Icons.Default.Stop, isError = true, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { viewModel.runRootCommand("pkill nmap || pkill perl || pkill ruby") }
+        }
 
-            // --- SECCIÓN: ACCIONES ---
-            Text("QUICK ACTIONS", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 4.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth().horizontalScroll(scrollState),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                HexButton("NMAP", Icons.Default.Router, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { runRootCommand("nmap $options $target") }
-                HexButton("NIKTO", Icons.Default.BugReport, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { runRootCommand("/data/data/com.termux/files/usr/bin/perl /data/data/com.termux/files/home/nikto/program/nikto.pl -h $target") }
-                HexButton("WHATWEB", Icons.Default.Language, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { runRootCommand("/data/data/com.termux/files/usr/bin/ruby /data/data/com.termux/files/home/WhatWeb/whatweb $target") }
-                HexButton("WHOIS", Icons.Default.Info, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { runRootCommand("whois $target") }
-                HexButton("DNSENUM", Icons.Default.Dns, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { runRootCommand("/data/data/com.termux/files/usr/bin/perl /data/data/com.termux/files/home/dnsenum/dnsenum.pl $target") }
-                HexButton("SHODAN", Icons.Default.Search, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { showShodanDialog = true }
-                HexButton("STOP", Icons.Default.Stop, isError = true, accent = currentAccent, accentLow = currentAccentLow, panel = currentPanel) { runRootCommand("pkill nmap || pkill perl || pkill ruby") }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // --- SECCIÓN: TERMINAL ---
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 4.dp).fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Terminal, contentDescription = null, tint = currentAccent, modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("LIVE TERMINAL OUTPUT", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.weight(1f))
-                IconButton(
-                    onClick = { isDarkMode = !isDarkMode },
-                    modifier = Modifier.size(24.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.DarkMode,
-                        contentDescription = "Theme Toggle",
-                        tint = currentAccent.copy(alpha = 0.5f),
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
-            
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(terminalBg, RoundedCornerShape(8.dp))
-                    .border(1.dp, currentAccentLow, RoundedCornerShape(8.dp))
-                    .padding(1.dp)
-            ) {
-                // Efecto de gradiente sutil para la terminal
-                Box(modifier = Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(listOf(if (isDarkMode) Color(0xFF080808) else Color(0xFFF0F2F5), terminalBg))
-                ))
-                
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 4.dp).fillMaxWidth()) {
+            Icon(Icons.Default.Terminal, contentDescription = null, tint = currentAccent, modifier = Modifier.size(14.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("LIVE TERMINAL OUTPUT", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.weight(1f))
+            IconButton(onClick = { viewModel.isDarkMode = !viewModel.isDarkMode }, modifier = Modifier.size(24.dp)) { Icon(imageVector = Icons.Default.DarkMode, contentDescription = "Theme Toggle", tint = currentAccent.copy(alpha = 0.5f), modifier = Modifier.size(16.dp)) }
+        }
+        
+        Box(modifier = Modifier.fillMaxSize().background(terminalBg, RoundedCornerShape(8.dp)).border(1.dp, currentAccentLow, RoundedCornerShape(8.dp)).padding(1.dp)) {
+            Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(if (isDarkMode) Color(0xFF080808) else Color(0xFFF0F2F5), terminalBg))))
+            SelectionContainer {
                 LazyColumn(modifier = Modifier.fillMaxSize().padding(10.dp)) {
-                    items(logs) { log ->
-                        Text(
-                            text = log,
-                            color = when {
-                                log.startsWith("!") -> currentAccent
-                                log.startsWith("[#]") -> if (isDarkMode) Color.Cyan else Color(0xFF0056D2)
-                                log.startsWith("[✔]") -> currentOk
-                                else -> currentOk.copy(alpha = 0.8f)
-                            },
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 11.sp,
-                            lineHeight = 14.sp
-                        )
+                    items(viewModel.logs) { log ->
+                        Text(text = log, color = when { log.startsWith("!") -> currentAccent; log.startsWith("[#]") -> if (isDarkMode) Color.Cyan else Color(0xFF0056D2); log.startsWith("[✔]") -> currentOk; else -> currentOk.copy(alpha = 0.8f) }, fontFamily = FontFamily.Monospace, fontSize = 11.sp, lineHeight = 14.sp)
                     }
                 }
             }
@@ -287,85 +335,74 @@ fun HexRootReconApp() {
                 onDismissRequest = { showShodanDialog = false },
                 containerColor = currentPanel,
                 title = { Text("SHODAN API ACCESS", color = currentAccent, fontFamily = FontFamily.Monospace) },
-                text = {
-                    OutlinedTextField(
-                        value = shodanKey,
-                        onValueChange = { shodanKey = it },
-                        label = { Text("API KEY", color = currentAccent.copy(0.5f)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = androidx.compose.ui.text.TextStyle(color = if (isDarkMode) Color.White else Color.Black, fontFamily = FontFamily.Monospace),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = currentAccent, unfocusedBorderColor = Color.DarkGray)
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showShodanDialog = false
-                        runRootCommand("curl -s https://api.shodan.io/shodan/host/$target?key=$shodanKey")
-                    }) { Text("CONNECT", color = currentAccent, fontWeight = FontWeight.Bold) }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showShodanDialog = false }) { Text("CANCEL", color = Color.Gray) }
-                }
+                text = { OutlinedTextField(value = viewModel.shodanKey, onValueChange = { viewModel.shodanKey = it }, label = { Text("API KEY", color = currentAccent.copy(0.5f)) }, modifier = Modifier.fillMaxWidth(), textStyle = TextStyle(color = if (isDarkMode) Color.White else Color.Black, fontFamily = FontFamily.Monospace), colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = currentAccent, unfocusedBorderColor = Color.DarkGray)) },
+                confirmButton = { TextButton(onClick = { showShodanDialog = false; viewModel.runRootCommand("curl -s https://api.shodan.io/shodan/host/${viewModel.target}?key=${viewModel.shodanKey}") }) { Text("CONNECT", color = currentAccent, fontWeight = FontWeight.Bold) } },
+                dismissButton = { TextButton(onClick = { showShodanDialog = false }) { Text("CANCEL", color = Color.Gray) } }
             )
         }
     }
 }
 
 @Composable
-fun HexInput(
-    value: String, 
-    onValueChange: (String) -> Unit, 
-    label: String, 
-    icon: ImageVector, 
-    accent: Color,
-    trailingIcon: @Composable (() -> Unit)? = null
-) {
-    OutlinedTextField(
-        value = value, onValueChange = onValueChange,
-        label = { Text(label, fontSize = 10.sp, fontFamily = FontFamily.Monospace) },
-        leadingIcon = { Icon(icon, contentDescription = null, tint = accent.copy(0.6f), modifier = Modifier.size(18.dp)) },
-        trailingIcon = trailingIcon,
-        modifier = Modifier.fillMaxWidth(),
-        textStyle = androidx.compose.ui.text.TextStyle(color = if (accent == HexAccent) Color.White else Color.Black, fontFamily = FontFamily.Monospace, fontSize = 14.sp),
-        shape = RoundedCornerShape(8.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = accent,
-            unfocusedBorderColor = Color.DarkGray,
-            cursorColor = accent,
-            focusedLabelColor = accent,
-            unfocusedLabelColor = Color.Gray
-        )
-    )
-}
+fun TerminalScreen(viewModel: ScannerViewModel) {
+    val isDarkMode = viewModel.isDarkMode
+    val currentAccent = if (isDarkMode) HexAccent else Color(0xFF0066FF)
+    val currentAccentLow = if (isDarkMode) HexAccentLow else Color(0xFFD0E0FF)
+    val terminalBg = if (isDarkMode) Color.Black else Color(0xFFE9EDF0)
+    val currentOk = if (isDarkMode) HexOk else Color(0xFF008800)
+    
+    val listState = rememberLazyListState()
+    
+    // Auto-scroll al final cuando hay nuevos logs
+    LaunchedEffect(viewModel.terminalLogs.size) {
+        if (viewModel.terminalLogs.isNotEmpty()) {
+            listState.animateScrollToItem(viewModel.terminalLogs.size - 1)
+        }
+    }
 
-@Composable
-fun HexButton(text: String, icon: ImageVector, isError: Boolean = false, accent: Color, accentLow: Color, panel: Color, onClick: () -> Unit) {
-    val isDark = panel != Color.White
-    val errorColor = if (isDark) Color.Red else Color(0xFFD32F2F)
-    val errorBg = if (isDark) Color(0xFF330000) else Color(0xFFFFEBEE)
-
-    Button(
-        onClick = onClick,
-        modifier = Modifier.height(42.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = if (isError) errorBg else panel),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, if (isError) errorColor else accentLow),
-        contentPadding = PaddingValues(horizontal = 12.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                icon, 
-                contentDescription = null, 
-                modifier = Modifier.size(16.dp), 
-                tint = if (isError) errorColor else if (isDark) Color.White else accent
-            )
-            Spacer(Modifier.width(6.dp))
-            Text(
-                text, 
-                color = if (isError) errorColor else if (isDark) Color.White else Color.Black, 
-                fontSize = 11.sp, 
-                fontWeight = FontWeight.Bold, 
-                fontFamily = FontFamily.Monospace
+    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+        Text("SYSTEM ROOT CONSOLE", color = currentAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+        
+        Box(modifier = Modifier.weight(1f).fillMaxWidth().background(terminalBg, RoundedCornerShape(8.dp)).border(1.dp, currentAccentLow, RoundedCornerShape(8.dp)).padding(8.dp)) {
+            SelectionContainer {
+                LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+                    items(viewModel.terminalLogs) { log ->
+                        Text(
+                            text = log,
+                            color = when {
+                                log.startsWith("root@hex:#") -> currentAccent
+                                log.startsWith("![ERR]") -> Color.Red
+                                else -> currentOk
+                            },
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().background(currentAccentLow.copy(alpha = 0.1f), RoundedCornerShape(8.dp)).border(1.dp, currentAccentLow.copy(alpha = 0.5f), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp)) {
+            Text(">", color = currentAccent, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+            TextField(
+                value = viewModel.terminalInput,
+                onValueChange = { viewModel.terminalInput = it },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = currentAccent,
+                    focusedTextColor = if (isDarkMode) Color.White else Color.Black
+                ),
+                textStyle = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 14.sp),
+                placeholder = { Text("Enter command...", color = Color.Gray, fontSize = 12.sp) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { viewModel.runTerminalCommand() }),
+                singleLine = true
             )
         }
     }
