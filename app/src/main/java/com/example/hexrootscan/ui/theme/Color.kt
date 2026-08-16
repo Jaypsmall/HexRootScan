@@ -17,3 +17,5 @@ val HexAccent = Color(0xFFFF0000)
 val HexAccentLow = Color(0xFF550000)
 val HexText = Color(0xFFBBBBBB)
 val HexOk = Color(0xFF00FF41)
+val HexYellow = Color(0xFFFFCC00) // Amarillo Demonio
+val GrisPlata = Color(0xFFD1D1D1) // Gris Plata Demoni

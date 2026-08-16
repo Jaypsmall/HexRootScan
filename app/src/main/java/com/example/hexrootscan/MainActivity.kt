@@ -72,7 +72,7 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
     val currentAccent = if (isDarkMode) HexAccent else Color(0xFF0066FF)
     val currentAccentLow = if (isDarkMode) HexAccentLow else Color(0xFFD0E0FF)
     val currentText = if (isDarkMode) HexText else Color(0xFF333333)
-    val currentBg = if (isDarkMode) HexBg else Color(0xFFF4F7FA)
+    val currentBg = if (isDarkMode) HexBg else GrisPlata
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -85,22 +85,29 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
     )
 
     val hexTitle = buildAnnotatedString {
-        val capsStyle = SpanStyle(
-            color = if (isDarkMode) HexAccent else Color(0xFF3E6BDB),
+        val hexStyle = SpanStyle(
+            color = HexAccent,
             fontWeight = FontWeight.Black,
             shadow = titleShadow,
             fontFamily = FontFamily.Monospace
         )
-        val themeStyle = SpanStyle(
+        val rootStyle = SpanStyle(
+            color = HexYellow,
+            fontWeight = FontWeight.Black,
+            shadow = titleShadow,
+            fontFamily = FontFamily.Monospace
+        )
+        val scanStyle = SpanStyle(
             color = if (isDarkMode) Color.White else Color(0xFF0D0D0D),
             fontWeight = FontWeight.Black,
             shadow = titleShadow,
             fontFamily = FontFamily.Monospace
         )
-        withStyle(style = themeStyle) { append("😈 ") }
-        withStyle(style = capsStyle) { append("HEX ") }
-        withStyle(style = capsStyle) { append("ROOT ") }
-        withStyle(style = themeStyle) { append("SCAN") }
+
+        withStyle(style = scanStyle) { append("😈 ") }
+        withStyle(style = hexStyle) { append("HEX") }
+        withStyle(style = rootStyle) { append("ROOT") }
+        withStyle(style = scanStyle) { append("SCAN") }
     }
 
     ModalNavigationDrawer(
@@ -138,10 +145,7 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                 ) {
                     Column {
                         Text("😈", fontSize = 40.sp, modifier = Modifier.padding(bottom = 8.dp), style = TextStyle(shadow = titleShadow))
-                        Row {
-                            Text("HEX ROOT ", color = currentAccent, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace, shadow = titleShadow))
-                            Text("SCAN", color = if (isDarkMode) Color.White else Color(0xFF0D0D0D), style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace, shadow = titleShadow))
-                        }
+                        Text(text = hexTitle, style = MaterialTheme.typography.headlineMedium)
                         Text("CONTROL PANEL v2.0", color = currentText, fontSize = 10.sp, letterSpacing = 2.sp)
                     }
                 }
