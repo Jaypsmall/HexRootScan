@@ -7,14 +7,60 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.FolderZip
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Radar
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -26,7 +72,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -37,8 +82,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.hexrootscan.logic.ScannerViewModel
 import com.example.hexrootscan.logic.Screen
 import com.example.hexrootscan.ui.components.DrawerItem
-import com.example.hexrootscan.ui.screens.*
-import com.example.hexrootscan.ui.theme.*
+import com.example.hexrootscan.ui.screens.DnsenumScreen
+import com.example.hexrootscan.ui.screens.ExplorerScreen
+import com.example.hexrootscan.ui.screens.InstallerScreen
+import com.example.hexrootscan.ui.screens.ScannerScreen
+import com.example.hexrootscan.ui.screens.SettingsScreen
+import com.example.hexrootscan.ui.screens.ShodanScreen
+import com.example.hexrootscan.ui.screens.TerminalScreen
+import com.example.hexrootscan.ui.theme.GrisPlata
+import com.example.hexrootscan.ui.theme.HexAccent
+import com.example.hexrootscan.ui.theme.HexAccentLow
+import com.example.hexrootscan.ui.theme.HexBg
+import com.example.hexrootscan.ui.theme.HexPanel
+import com.example.hexrootscan.ui.theme.HexRootScanTheme
+import com.example.hexrootscan.ui.theme.HexText
+import com.example.hexrootscan.ui.theme.HexYellow
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -279,9 +337,6 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                     Screen.INSTALLER -> InstallerScreen(viewModel)
                     Screen.SHODAN -> ShodanScreen(viewModel)
                     Screen.SETTINGS -> SettingsScreen(viewModel)
-                    else -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("MÓDULO EN DESARROLLO", color = currentAccent, fontWeight = FontWeight.Bold)
-                    }
                 }
             }
         }
