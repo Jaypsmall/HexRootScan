@@ -8,7 +8,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -135,61 +137,72 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                         drawPath(p, currentAccentLow, style = Stroke(stroke))
                     }
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                        .background(Brush.verticalGradient(listOf(currentAccentLow.copy(alpha = 0.3f), Color.Transparent)))
-                        .padding(20.dp),
-                    contentAlignment = Alignment.BottomStart
-                ) {
-                    Column {
-                        Text("😈", fontSize = 40.sp, modifier = Modifier.padding(bottom = 8.dp), style = TextStyle(shadow = titleShadow))
-                        Text(text = hexTitle, style = MaterialTheme.typography.headlineMedium)
-                        Text("CONTROL PANEL v2.0", color = currentText, fontSize = 10.sp, letterSpacing = 2.sp)
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(12.dp))
-                
-                DrawerItem("NETWORK SCANNER", Icons.Default.Radar, viewModel.currentScreen == Screen.SCANNER, currentAccent, currentPanel) { 
-                    viewModel.currentScreen = Screen.SCANNER
-                    scope.launch { drawerState.close() } 
-                }
-                DrawerItem("TERMINAL ACCESS", Icons.Default.Terminal, viewModel.currentScreen == Screen.TERMINAL, currentAccent, currentPanel) { 
-                    viewModel.currentScreen = Screen.TERMINAL
-                    scope.launch { drawerState.close() } 
-                }
-                DrawerItem("DNS ENUMERATION", Icons.Default.Dns, viewModel.currentScreen == Screen.DNSENUM, currentAccent, currentPanel) { 
-                    viewModel.currentScreen = Screen.DNSENUM
-                    scope.launch { drawerState.close() } 
-                }
-                DrawerItem("ROOT EXPLORER", Icons.Default.FolderZip, viewModel.currentScreen == Screen.EXPLORER, currentAccent, currentPanel) { 
-                    viewModel.currentScreen = Screen.EXPLORER
-                    viewModel.refreshExplorer()
-                    scope.launch { drawerState.close() } 
-                }
-                DrawerItem("SHODAN INTEL", Icons.Default.Search, viewModel.currentScreen == Screen.SHODAN, currentAccent, currentPanel) { 
-                    viewModel.currentScreen = Screen.SHODAN
-                    scope.launch { drawerState.close() } 
-                }
-                DrawerItem("TOOL INSTALLER", Icons.Default.Download, viewModel.currentScreen == Screen.INSTALLER, currentAccent, currentPanel) { 
-                    viewModel.currentScreen = Screen.INSTALLER
-                    scope.launch { drawerState.close() } 
-                }
-                DrawerItem("SYSTEM SETTINGS", Icons.Default.Settings, viewModel.currentScreen == Screen.SETTINGS, currentAccent, currentPanel) { 
-                    viewModel.currentScreen = Screen.SETTINGS
-                    scope.launch { drawerState.close() } 
-                }
-                
-                Spacer(modifier = Modifier.weight(1f))
-                
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Text("HexRootScan v1.0.2", color = currentText.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
-                    Text("Created by JAYLIZ with ❤️", color = currentText.copy(alpha = 0.4f), fontSize = 9.sp, fontWeight = FontWeight.Thin, fontFamily = FontFamily.Monospace)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp)
+                            .background(Brush.verticalGradient(listOf(currentAccentLow.copy(alpha = 0.3f), Color.Transparent)))
+                            .padding(20.dp),
+                        contentAlignment = Alignment.BottomStart
+                    ) {
+                        Column {
+                            // Eliminamos el emoji duplicado de arriba
+                            Text(
+                                text = hexTitle, 
+                                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp)
+                            )
+                            Text("CONTROL PANEL v2.0", color = currentText, fontSize = 10.sp, letterSpacing = 2.sp)
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    DrawerItem("NETWORK SCANNER", Icons.Default.Radar, viewModel.currentScreen == Screen.SCANNER, currentAccent, currentPanel) { 
+                        viewModel.currentScreen = Screen.SCANNER
+                        scope.launch { drawerState.close() } 
+                    }
+                    DrawerItem("TERMINAL ACCESS", Icons.Default.Terminal, viewModel.currentScreen == Screen.TERMINAL, currentAccent, currentPanel) { 
+                        viewModel.currentScreen = Screen.TERMINAL
+                        scope.launch { drawerState.close() } 
+                    }
+                    DrawerItem("DNS ENUMERATION", Icons.Default.Dns, viewModel.currentScreen == Screen.DNSENUM, currentAccent, currentPanel) { 
+                        viewModel.currentScreen = Screen.DNSENUM
+                        scope.launch { drawerState.close() } 
+                    }
+                    DrawerItem("ROOT EXPLORER", Icons.Default.FolderZip, viewModel.currentScreen == Screen.EXPLORER, currentAccent, currentPanel) { 
+                        viewModel.currentScreen = Screen.EXPLORER
+                        viewModel.refreshExplorer()
+                        scope.launch { drawerState.close() } 
+                    }
+                    DrawerItem("SHODAN INTEL", Icons.Default.Search, viewModel.currentScreen == Screen.SHODAN, currentAccent, currentPanel) { 
+                        viewModel.currentScreen = Screen.SHODAN
+                        scope.launch { drawerState.close() } 
+                    }
+                    DrawerItem("TOOL INSTALLER", Icons.Default.Download, viewModel.currentScreen == Screen.INSTALLER, currentAccent, currentPanel) { 
+                        viewModel.currentScreen = Screen.INSTALLER
+                        scope.launch { drawerState.close() } 
+                    }
+                    DrawerItem("SYSTEM SETTINGS", Icons.Default.Settings, viewModel.currentScreen == Screen.SETTINGS, currentAccent, currentPanel) { 
+                        viewModel.currentScreen = Screen.SETTINGS
+                        scope.launch { drawerState.close() } 
+                    }
+                    
+                    Spacer(modifier = Modifier.weight(1f).heightIn(min = 40.dp))
+                    
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("HexRootScan v1.0.2", color = currentText.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.Black, fontFamily = FontFamily.Monospace)
+                        Text("Created by JAYLIZ with ❤️", color = currentText.copy(alpha = 0.4f), fontSize = 9.sp, fontWeight = FontWeight.Thin, fontFamily = FontFamily.Monospace)
+                    }
                 }
             }
         }
