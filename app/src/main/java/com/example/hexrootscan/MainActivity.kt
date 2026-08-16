@@ -258,7 +258,13 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                                 }
                             }
                         },
-                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = currentPanel)
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = currentPanel,
+                            scrolledContainerColor = Color.Unspecified,
+                            navigationIconContentColor = Color.Unspecified,
+                            titleContentColor = Color.Unspecified,
+                            actionIconContentColor = Color.Unspecified
+                        )
                     )
                     HorizontalDivider(color = currentAccent.copy(alpha = 0.5f), thickness = 0.5.dp)
                 }
