@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.*
@@ -13,31 +14,33 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 enum class Screen {
-    SCANNER, TERMINAL, EXPLORER, SHODAN, SETTINGS
+    SCANNER, TERMINAL, EXPLORER, SHODAN, DNSENUM, INSTALLER, SETTINGS
+}
+
+enum class ExecutionStatus {
+    IDLE, WORKING, FINISHED
 }
 
 class ScannerViewModel(application: Application) : AndroidViewModel(application) {
     private val prefs = application.getSharedPreferences("hex_prefs", Context.MODE_PRIVATE)
     
     var currentScreen by mutableStateOf(Screen.SCANNER)
+    var status by mutableStateOf(ExecutionStatus.IDLE)
     
     var target by mutableStateOf("")
     var options by mutableStateOf("-sS -Pn -T4")
-    var logs by mutableStateOf(listOf("💀 SYSTEM INITIALIZED - ROOT ACCESS GRANTED"))
+    var logs by mutableStateOf(listOf("💀 SYSTEM INITIALIZED - READY FOR RECON"))
     
-    // Terminal dedicada
-    var terminalLogs by mutableStateOf(listOf("HEX-ROOT-TERMINAL v1.0", "Type 'help' for commands", ""))
+    var terminalLogs by mutableStateOf(listOf("HEX-ROOT-TERMINAL v1.2", "Hybrid Engine Active", ""))
     var terminalInput by mutableStateOf("")
 
     var isDarkMode by mutableStateOf(true)
     var shodanKey by mutableStateOf(prefs.getString("shodan_key", "") ?: "")
 
-    // Explorer State
     var explorerFiles by mutableStateOf(listOf<File>())
     var selectedFileContent by mutableStateOf<String?>(null)
     val exportDir = File(application.getExternalFilesDir(null), "Exports")
 
-    // Triage Engine State
     var triageResults by mutableStateOf(listOf<Pair<String, String>>())
     var showTriageDialog by mutableStateOf(false)
 
@@ -55,34 +58,79 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
         return text.replace(Regex("\u001B\\[[0-9;]*[mK]"), "")
     }
 
-    fun runRootCommand(command: String) {
+    fun runRootCommand(command: String, forceUser: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { logs = logs + "[#] > $command" }
+            withContext(Dispatchers.Main) { status = ExecutionStatus.WORKING }
+            val useRoot = !forceUser
+            
             try {
-                val process = Runtime.getRuntime().exec("su")
+                val setupEnv = "export PREFIX=/data/data/com.termux/files/usr\n" +
+                              "export HOME=/data/data/com.termux/files/home\n" +
+                              "export PATH=\$PREFIX/bin:\$PREFIX/bin/applets:\$HOME/bin:\$PATH\n" +
+                              "export LD_LIBRARY_PATH=\$PREFIX/lib\n" +
+                              "export LANG=en_US.UTF-8\n"
+
+                val process = if (useRoot) {
+                    try {
+                        Runtime.getRuntime().exec("su")
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) { logs = logs + "![WARN] ROOT UNAVAILABLE - TRYING USER SHELL" }
+                        Runtime.getRuntime().exec("sh")
+                    }
+                } else {
+                    Runtime.getRuntime().exec("sh")
+                }
+
                 val os = DataOutputStream(process.outputStream)
-                val setupEnv = "export PATH=/data/data/com.termux/files/usr/bin:/data/data/com.termux/files/usr/bin/applets:\$PATH\n" +
-                              "export LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib\n" +
-                              "export HOME=/data/data/com.termux/files/home\n"
-                
                 os.write(setupEnv.toByteArray())
                 os.write(("$command\n").toByteArray())
                 os.write("exit\n".toByteArray())
                 os.flush()
 
-                BufferedReader(InputStreamReader(process.inputStream)).forEachLine { line ->
-                    val cleanLine = stripAnsi(line)
-                    viewModelScope.launch(Dispatchers.Main) { logs = logs + cleanLine }
+                val reader = BufferedReader(InputStreamReader(process.inputStream))
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    val cleanLine = stripAnsi(line!!)
+                    withContext(Dispatchers.Main) {
+                        updateLogs(cleanLine)
+                    }
                 }
-                BufferedReader(InputStreamReader(process.errorStream)).forEachLine { line ->
-                    val cleanLine = stripAnsi(line)
-                    viewModelScope.launch(Dispatchers.Main) { logs = logs + "![ERR] $cleanLine" }
+
+                val errorReader = BufferedReader(InputStreamReader(process.errorStream))
+                while (errorReader.readLine().also { line = it } != null) {
+                    val cleanLine = stripAnsi(line!!)
+                    withContext(Dispatchers.Main) {
+                        updateLogs("![ERR] $cleanLine")
+                    }
                 }
+
                 process.waitFor()
-                withContext(Dispatchers.Main) { logs = logs + "[✔] SESSION_FINISHED" }
+                withContext(Dispatchers.Main) { 
+                    updateLogs("[✔] EXECUTION_FINISHED")
+                    status = ExecutionStatus.FINISHED
+                }
+                delay(2000)
+                withContext(Dispatchers.Main) { status = ExecutionStatus.IDLE }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) { logs = logs + "![CRITICAL] ${e.message}" }
+                withContext(Dispatchers.Main) { 
+                    updateLogs("![CRITICAL] ${e.message}")
+                    status = ExecutionStatus.FINISHED
+                }
+                delay(2000)
+                withContext(Dispatchers.Main) { status = ExecutionStatus.IDLE }
             }
+        }
+    }
+
+    private fun updateLogs(newLine: String) {
+        val currentLogs = logs.toMutableList()
+        if (currentLogs.size > 1000) currentLogs.removeAt(0)
+        logs = currentLogs + newLine
+        
+        if (currentScreen == Screen.TERMINAL) {
+            val currentTerm = terminalLogs.toMutableList()
+            if (currentTerm.size > 1000) currentTerm.removeAt(0)
+            terminalLogs = currentTerm + newLine
         }
     }
     
@@ -93,36 +141,10 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
     fun runTerminalCommand() {
         val cmd = terminalInput.trim()
         if (cmd.isEmpty()) return
-        
         terminalLogs = terminalLogs + "root@hex:# $cmd"
+        val toRun = terminalInput
         terminalInput = ""
-        
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val process = Runtime.getRuntime().exec("su")
-                val os = DataOutputStream(process.outputStream)
-                val setupEnv = "export PATH=/data/data/com.termux/files/usr/bin:/data/data/com.termux/files/usr/bin/applets:\$PATH\n" +
-                              "export LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib\n" +
-                              "export HOME=/data/data/com.termux/files/home\n"
-                
-                os.write(setupEnv.toByteArray())
-                os.write(("$cmd\n").toByteArray())
-                os.write("exit\n".toByteArray())
-                os.flush()
-
-                BufferedReader(InputStreamReader(process.inputStream)).forEachLine { line ->
-                    val cleanLine = stripAnsi(line)
-                    viewModelScope.launch(Dispatchers.Main) { terminalLogs = terminalLogs + cleanLine }
-                }
-                BufferedReader(InputStreamReader(process.errorStream)).forEachLine { line ->
-                    val cleanLine = stripAnsi(line)
-                    viewModelScope.launch(Dispatchers.Main) { terminalLogs = terminalLogs + "![ERR] $cleanLine" }
-                }
-                process.waitFor()
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { terminalLogs = terminalLogs + "![CRITICAL] ${e.message}" }
-            }
-        }
+        runRootCommand(toRun)
     }
 
     fun exportLogs() {
@@ -133,11 +155,11 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
                 val file = File(exportDir, fileName)
                 file.writeText(logs.joinToString("\n"))
                 withContext(Dispatchers.Main) {
-                    logs = logs + "[✔] EXPORTED TO: $fileName"
+                    updateLogs("[✔] EXPORTED TO: $fileName")
                     refreshExplorer()
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) { logs = logs + "![ERR] EXPORT FAILED: ${e.message}" }
+                withContext(Dispatchers.Main) { updateLogs("![ERR] EXPORT FAILED: ${e.message}") }
             }
         }
     }
@@ -155,27 +177,21 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    logs = logs + "![ERR] FAILED TO OPEN FILE: ${e.message}"
+                    updateLogs("![ERR] FAILED TO OPEN FILE: ${e.message}")
                 }
             }
         }
     }
 
-    // --- TRIAGE ENGINE LOGIC ---
     fun runTriage() {
         val allText = logs.joinToString("\n")
         val ports = parsePorts(allText)
         val recommendations = mutableListOf<Pair<String, String>>()
-        
-        ports.forEach { port ->
-            recommendations.addAll(getRecommendations(port))
-        }
-        
+        ports.forEach { port -> recommendations.addAll(getRecommendations(port)) }
         if (target.isNotEmpty()) {
             recommendations.add("Whois Info" to "whois $target")
             recommendations.add("IP Info (CURL)" to "curl ipinfo.io/$target")
         }
-
         triageResults = recommendations.distinct()
         showTriageDialog = true
     }
@@ -185,17 +201,6 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
         val regex = Regex("""(\d{1,5})/(tcp|udp)""")
         regex.findAll(text).forEach { match ->
             match.groupValues[1].toIntOrNull()?.let { if (it in 1..65535) ports.add(it) }
-        }
-        
-        if (ports.isEmpty()) {
-            val lines = text.lines()
-            lines.forEach { line ->
-                if (line.contains("open", true) || line.contains("port", true)) {
-                    Regex("""\b(\d{1,5})\b""").findAll(line).forEach { match ->
-                        match.groupValues[1].toIntOrNull()?.let { if (it in 1..65535) ports.add(it) }
-                    }
-                }
-            }
         }
         return ports.sorted()
     }
@@ -217,7 +222,6 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
             22 -> recs.add("SSH Banner (P22)" to "timeout 5 nc -w 3 $t 22")
             25, 587, 465 -> recs.add("SMTP EHLO (P$port)" to "echo EHLO | nc -w 3 $t $port")
             53 -> recs.add("DNS Zone Transfer" to "dig @$t axfr")
-            3389 -> recs.add("RDP Check" to "nmap --script rdp-enum-encryption -p 3389 $t")
         }
         return recs
     }
