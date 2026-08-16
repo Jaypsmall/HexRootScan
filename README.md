@@ -1,4 +1,4 @@
-# 😈 HEX ROOT SCAN (v1.0.0)
+# 😈 HEX ROOT SCAN (v1.0.3)
 
 **HEX ROOT SCAN** is a powerful network auditing, penetration testing, and web reconnaissance tool designed exclusively for Android devices. Featuring a clean, dark, and optimized interface, it allows developers and cybersecurity enthusiasts to run advanced analyses right from the palm of their hand.
 
@@ -25,9 +25,9 @@
 
 ---
 
-### 😈 Releases HEX ROOT SCAN (v1.0.1)
+### 😈 Releases HEX ROOT SCAN (v1.0.3)
 
-https://github.com/Jaypsmall/HexRootScan/releases/tag/v1.0.1
+*  **https://github.com/Jaypsmall/HexRootScan/releases/download/v1.0.1/HexRootScan_v1.0.3.apk**
 
 ---
 
