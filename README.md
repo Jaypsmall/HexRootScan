@@ -1,6 +1,7 @@
-# 😈 HEX ROOT SCAN (v1.0.3)
+# 😈 HEX ROOT SCAN (v1.0.3)   ![Android](https://img.shields.io/badge/Android-181717?style=flat&logo=android&logoColor=yellow) ![Kotlin](https://img.shields.io/badge/kotlin-181717?style=flat&logo=kotlin&logoColor=yellow) 
 
-**HEX ROOT SCAN** is a powerful network auditing, penetration testing, and web reconnaissance tool designed exclusively for Android devices. Featuring a clean, dark, and optimized interface, it allows developers and cybersecurity enthusiasts to run advanced analyses right from the palm of their hand.
+**HEX ROOT SCAN**
+Is a powerful network auditing, penetration testing, and web reconnaissance tool designed exclusively for Android devices. Featuring a clean, dark, and optimized interface, it allows developers and cybersecurity enthusiasts to run advanced analyses right from the palm of their hand.
 
 ---
 
@@ -19,9 +20,6 @@
 <p align="center">
   <img src="https://github.com/Jaypsmall/HexRootScan/blob/master/asset/hexrootscan1.png" width="100%" />
 </p>
-
-![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=flat&logo=kotlin&logoColor=white)
-![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)
 
 ---
 
