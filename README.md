@@ -1,6 +1,17 @@
-# 😈 HEX ROOT SCAN (v1.0.3)
+# 😈 HEX ROOT SCAN (v1.0.3)   ! [Kotlin](https://img.shields.io/badge/kotlin-%181717FF.svg?style=flat&logo=kotlin&logoColor=yellow)
+![Android](https://img.shields.io/badge/Android-181717?style=flat&logo=android&logoColor=yellow)
 
 **HEX ROOT SCAN** is a powerful network auditing, penetration testing, and web reconnaissance tool designed exclusively for Android devices. Featuring a clean, dark, and optimized interface, it allows developers and cybersecurity enthusiasts to run advanced analyses right from the palm of their hand.
+
+*  **https://github.com/Jaypsmall/HexRootScan/releases/download/v1.0.1/HexRootScan_v1.0.3.apk**
+
+---
+
+## 📸 Screenshots
+
+<p align="center">
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/master/asset/hexrootscan1.png" width="100%" />
+</p>
 
 ---
 
@@ -11,23 +22,6 @@
 *   **🔥 Vulnerability Scanner (Nikto):** Identify insecure configurations and dangerous files on target web servers.
 *   **🛡️ Shodan Integration:** Search the Shodan database directly to identify connected devices and exposed ports using your API Key.
 *   **⚡ Root Access Ready:** Designed to work natively with superuser (`su`) privileges to maximize the performance of network tools.
-
----
-
-## 📸 Screenshots
-
-<p align="center">
-  <img src="https://github.com/Jaypsmall/HexRootScan/blob/master/asset/hexrootscan1.png" width="100%" />
-</p>
-
-![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=flat&logo=kotlin&logoColor=white)
-![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)
-
----
-
-### 😈 Releases HEX ROOT SCAN (v1.0.3)
-
-*  **https://github.com/Jaypsmall/HexRootScan/releases/download/v1.0.1/HexRootScan_v1.0.3.apk**
 
 ---
 
@@ -55,6 +49,8 @@ This tool is designed SOLELY for:
 
 Unauthorized use on systems without consent is ILLEGAL.
 The author assumes no responsibility for misuse.
+
+---
 
 ## 📄 License and Copyright
 
