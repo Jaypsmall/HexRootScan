@@ -1,5 +1,5 @@
 # 😈 HEX ROOT SCAN (v1.0.3)   
-![Kotlin](https://img.shields.io/badge/kotlin-%181717FF.svg?style=flat&logo=kotlin&logoColor=yellow)
+![Kotlin](https://img.shields.io/badge/kotlin-181717?style=flat&logo=kotlin&logoColor=yellow)
 ![Android](https://img.shields.io/badge/Android-181717?style=flat&logo=android&logoColor=yellow)
 
 **HEX ROOT SCAN** is a powerful network auditing, penetration testing, and web reconnaissance tool designed exclusively for Android devices. Featuring a clean, dark, and optimized interface, it allows developers and cybersecurity enthusiasts to run advanced analyses right from the palm of their hand.
