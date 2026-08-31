@@ -145,14 +145,8 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
     )
 
     val hexTitle = buildAnnotatedString {
-        val hexStyle = SpanStyle(
+        val hexRootStyle = SpanStyle(
             color = HexAccent,
-            fontWeight = FontWeight.Black,
-            shadow = titleShadow,
-            fontFamily = FontFamily.Monospace
-        )
-        val rootStyle = SpanStyle(
-            color = HexYellow,
             fontWeight = FontWeight.Black,
             shadow = titleShadow,
             fontFamily = FontFamily.Monospace
@@ -165,8 +159,7 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
         )
 
         withStyle(style = scanStyle) { append("😈 ") }
-        withStyle(style = hexStyle) { append("HEX") }
-        withStyle(style = rootStyle) { append("ROOT") }
+        withStyle(style = hexRootStyle) { append("HEXROOT") }
         withStyle(style = scanStyle) { append("SCAN") }
     }
 
@@ -209,9 +202,24 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                         contentAlignment = Alignment.BottomStart
                     ) {
                         Column {
-                            // Eliminamos el emoji duplicado de arriba
+                            val drawerTitle = buildAnnotatedString {
+                                val hexRootStyle = SpanStyle(
+                                    color = HexAccent,
+                                    fontWeight = FontWeight.Black,
+                                    shadow = titleShadow,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                                val scanStyle = SpanStyle(
+                                    color = if (isDarkMode) Color.White else Color(0xFF0D0D0D),
+                                    fontWeight = FontWeight.Black,
+                                    shadow = titleShadow,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                                withStyle(style = hexRootStyle) { append("HEXROOT") }
+                                withStyle(style = scanStyle) { append("SCAN") }
+                            }
                             Text(
-                                text = hexTitle, 
+                                text = drawerTitle,
                                 style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp)
                             )
                             Text("CONTROL PANEL v2.0", color = currentText, fontSize = 10.sp, letterSpacing = 2.sp)

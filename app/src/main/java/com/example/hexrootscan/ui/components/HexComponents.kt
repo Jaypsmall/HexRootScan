@@ -99,6 +99,7 @@ fun HexInput(
         modifier = Modifier.fillMaxWidth(),
         textStyle = TextStyle(color = if (accent == HexAccent) Color.White else Color.Black, fontFamily = FontFamily.Monospace, fontSize = 14.sp),
         shape = RoundedCornerShape(8.dp),
+        singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = accent,
             unfocusedBorderColor = Color.DarkGray,
