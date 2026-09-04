@@ -25,14 +25,6 @@ Is a powerful network auditing, penetration testing, and web reconnaissance tool
 
 ---
 
-## 📸 Screenshots
-
-<p align="center">
-  <img src="https://github.com/Jaypsmall/HexRootScan/blob/master/asset/hexrootscan1.png" width="100%" />
-</p>
-
----
-
 ## 🛠️ Architecture and Technologies
 
 *   **Platform:** Native Android (Jetpack Compose for a fluid, modern interface).
