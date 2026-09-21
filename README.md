@@ -7,7 +7,7 @@ Is a powerful network auditing, penetration testing, and web reconnaissance tool
 
 ---
 
-<p align="center">
+<p align="center" width="100%">
   <img src="https://github.com/Jaypsmall/HexRootScan/blob/master-suite/asset/image2.png" width="30%" />
   <img src="https://github.com/Jaypsmall/HexRootScan/blob/master-suite/asset/image3.png" width="30%" />
   <img src="https://github.com/Jaypsmall/HexRootScan/blob/master-suite/asset/image4.png" width="30%" />
