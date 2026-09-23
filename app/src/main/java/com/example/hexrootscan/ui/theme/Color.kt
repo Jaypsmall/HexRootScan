@@ -13,8 +13,8 @@ val Pink40 = Color(0xFF7D5260)
 // --- SISTEMA DE COLORES HEX DEMON ---
 val HexBg = Color(0xFF050505)
 val HexPanel = Color(0xFF0F0F0F)
-val HexAccent = Color(0xFFFF0000)
-val HexAccentLow = Color(0xFF550000)
+val HexAccent = Color(0xFF3E6BDB)
+val HexAccentLow = Color(0xFF3E69DB)
 val HexText = Color(0xFFBBBBBB)
 val HexOk = Color(0xFF00FF41)
 val HexYellow = Color(0xFFFFCC00) // Amarillo Demonio

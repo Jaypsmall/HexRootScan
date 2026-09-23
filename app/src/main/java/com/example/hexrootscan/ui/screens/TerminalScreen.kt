@@ -28,7 +28,7 @@ import com.example.hexrootscan.ui.theme.*
 @Composable
 fun TerminalScreen(viewModel: ScannerViewModel) {
     val isDarkMode = viewModel.isDarkMode
-    val currentAccent = if (isDarkMode) HexAccent else Color(0xFF0066FF)
+    val currentAccent = HexAccent
     val currentAccentLow = if (isDarkMode) HexAccentLow else Color(0xFFD0E0FF)
     val terminalBg = if (isDarkMode) Color.Black else Color(0xFFE9EDF0)
     val currentOk = if (isDarkMode) HexOk else Color(0xFF008800)

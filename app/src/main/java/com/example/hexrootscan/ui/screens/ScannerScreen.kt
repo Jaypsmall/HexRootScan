@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -37,7 +36,7 @@ import com.example.hexrootscan.ui.theme.*
 fun ScannerScreen(viewModel: ScannerViewModel) {
     val isDarkMode = viewModel.isDarkMode
     val currentPanel = if (isDarkMode) HexPanel else Color.White
-    val currentAccent = if (isDarkMode) HexAccent else Color(0xFF0066FF)
+    val currentAccent = HexAccent
     val currentAccentLow = if (isDarkMode) HexAccentLow else Color(0xFFD0E0FF)
     val currentText = if (isDarkMode) HexText else Color(0xFF333333)
     val currentOk = if (isDarkMode) HexOk else Color(0xFF008800)

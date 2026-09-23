@@ -51,7 +51,7 @@ import com.example.hexrootscan.ui.theme.HexText
 @Composable
 fun ShodanScreen(viewModel: ScannerViewModel) {
     val isDarkMode = viewModel.isDarkMode
-    val currentAccent = if (isDarkMode) HexAccent else Color(0xFF0066FF)
+    val currentAccent = HexAccent
     val currentAccentLow = if (isDarkMode) HexAccentLow else Color(0xFFD0E0FF)
     val currentPanel = if (isDarkMode) HexPanel else Color.White
     val currentText = if (isDarkMode) HexText else Color(0xFF333333)

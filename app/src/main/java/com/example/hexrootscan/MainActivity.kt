@@ -129,7 +129,7 @@ class MainActivity : ComponentActivity() {
 fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
     val isDarkMode = viewModel.isDarkMode
     val currentPanel = if (isDarkMode) HexPanel else Color.White
-    val currentAccent = if (isDarkMode) HexAccent else Color(0xFF0066FF)
+    val currentAccent = HexAccent
     val currentAccentLow = if (isDarkMode) HexAccentLow else Color(0xFFD0E0FF)
     val currentText = if (isDarkMode) HexText else Color(0xFF333333)
     val currentBg = if (isDarkMode) HexBg else GrisPlata
@@ -202,6 +202,11 @@ fun HexRootReconApp(viewModel: ScannerViewModel = viewModel()) {
                         contentAlignment = Alignment.BottomStart
                     ) {
                         Column {
+                            Text(
+                                text = "😈",
+                                fontSize = 40.sp,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
                             val drawerTitle = buildAnnotatedString {
                                 val hexRootStyle = SpanStyle(
                                     color = HexAccent,
