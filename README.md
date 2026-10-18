@@ -1,7 +1,7 @@
 # 😈 HEX ROOT SCAN (v1.0.3)   ![Android](https://img.shields.io/badge/Android-181717?style=flat&logo=android&logoColor=3868D8) ![Kotlin](https://img.shields.io/badge/kotlin-181717?style=flat&logo=kotlin&logoColor=3868D8) 
 
 **😈 HEX ROOT SCAN** Apk
-Is a powerful network auditing, penetration testing, and web reconnaissance tool designed exclusively for Android devices. Featuring a clean, dark, and optimized interface, it allows developers and cybersecurity enthusiasts to run advanced analyses right from the palm of their hand.
+Es una potente herramienta de auditoría de redes y pruebas de penetración diseñada exclusivamente para dispositivos Android. Con una interfaz limpia, oscura y optimizada, permite a desarrolladores y entusiastas de la ciberseguridad realizar análisis avanzados directamente desde la palma de su mano.
 
 <a href="https://github.com/Jaypsmall/HexRootScan/releases/download/v1.0.1/HexRootScan_v1.0.3.apk">
  <img src="https://img.shields.io/badge/DOWNLOAD_HEXROOTSCAN_v1.0.3_APK-181717?style=flat&logo=android&logoColor=3868D8" alt="Download Release">
