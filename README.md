@@ -20,9 +20,13 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 ## 🚀 Key Features
 
 *   **🕵️‍♂️ Análisis avanzado de red (Nmap integrado):** Realiza escaneos de puertos, detección de servicios y mapeo de red de forma nativa.
+
 *   **🌐 Reconocimiento de dominios (Whois y Dig):** Consulta la información de registro de dominios y analiza los registros DNS de cualquier host en segundos.
+
 *   **🔥 Escáner de vulnerabilidades (Nikto):** Identifica configuraciones inseguras y archivos peligrosos en los servidores web objetivo.
+
 *   **🛡️ Integración con Shodan:** Busque directamente en la base de datos de Shodan para identificar los dispositivos conectados y los puertos expuestos utilizando su clave API.
+
 *   **⚡ Listo para acceso root:** Diseñado para funcionar de forma nativa con privilegios de superusuario (`su`) para maximizar el rendimiento de las herramientas de red.
 
 ---
@@ -30,7 +34,9 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 ## 🛠️ Architecture and Technologies
 
 *   **Platform:** Native Android (Jetpack Compose for a fluid, modern interface).
+
 *   **Language:** 100% Kotlin.
+
 *   **Security and Optimization:** Advanced code obfuscation using **R8 / ProGuard** to ensure the executable's integrity and lightweight footprint.
 
 ---
@@ -39,7 +45,7 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 
 *   **Dispositivo rooteado (recomendado):** Necesario para el correcto funcionamiento de herramientas avanzadas como Nmap que necesitan acceso `su`. 
 
-* **Android 8.0 (API 26) o superior.**
+*   **Android 8.0 (API 26) o superior.**
 
 ---
 
