@@ -37,8 +37,8 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 
 ## ⚠️ Requirements
 
-*   **Rooted Device (Recommended):** Required for the proper functioning of advanced tools like Nmap that need `su` access.
-*   **Android 8.0 (API 26) or higher.**
+*   **Dispositivo rooteado (recomendado):** Necesario para el correcto funcionamiento de herramientas avanzadas como Nmap que necesitan acceso `su`. 
+* **Android 8.0 (API 26) o superior.**
 
 ---
 
