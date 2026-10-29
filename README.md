@@ -63,4 +63,4 @@ El uso no autorizado en sistemas sin consentimiento es ILEGAL. El autor no asume
 
 Copyright © 2026. Todos los derechos reservados. El código fuente de esta aplicación es propiedad privada del desarrollador. Queda prohibida la reproducción, distribución o modificación no autorizada de este software.
 
-*Developed with 💙 by an Independent Dev.*
+*Desarrollado con 💙 por un desarrollador independiente.*
