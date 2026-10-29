@@ -42,15 +42,14 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 
 ---
 
-## ⚠️ LEGAL NOTICE
+## ⚠️ AVISO LEGAL
 
-This tool is designed SOLELY for:
-- Authorized security testing
-- Auditing your own networks
-- Educational research
+Esta herramienta está diseñada EXCLUSIVAMENTE para: 
+- Pruebas de seguridad autorizadas 
+- Auditoría de sus propias redes 
+- Investigación educativa
 
-Unauthorized use on systems without consent is ILLEGAL.
-The author assumes no responsibility for misuse.
+El uso no autorizado en sistemas sin consentimiento es ILEGAL. El autor no asume ninguna responsabilidad por el mal uso.
 
 ## 📄 License & Copyright
 
