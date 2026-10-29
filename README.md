@@ -19,9 +19,9 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 
 ## 🚀 Key Features
 
-*   **🕵️‍♂️ Advanced Network Analysis (Integrated Nmap):** Perform port scans, service detection, and network mapping natively.
-*   **🌐 Domain Reconnaissance (Whois & Dig):** Query domain registration information and analyze DNS records for any host in seconds.
-*   **🔥 Vulnerability Scanner (Nikto):** Identify insecure configurations and dangerous files on target web servers.
+*   **🕵️‍♂️ Análisis avanzado de red (Nmap integrado):** Realiza escaneos de puertos, detección de servicios y mapeo de red de forma nativa.
+*   **🌐 Reconocimiento de dominios (Whois y Dig):** Consulta la información de registro de dominios y analiza los registros DNS de cualquier host en segundos.
+*   **🔥 Escáner de vulnerabilidades (Nikto):** Identifica configuraciones inseguras y archivos peligrosos en los servidores web objetivo.
 *   **🛡️ Shodan Integration:** Search the Shodan database directly to identify connected devices and exposed ports using your API Key.
 *   **⚡ Root Access Ready:** Designed to work natively with superuser (`su`) privileges to maximize the performance of network tools.
 
