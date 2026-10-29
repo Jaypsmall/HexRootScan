@@ -35,9 +35,10 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 
 ---
 
-## ⚠️ Requirements
+## ⚠️ Requisitos
 
 *   **Dispositivo rooteado (recomendado):** Necesario para el correcto funcionamiento de herramientas avanzadas como Nmap que necesitan acceso `su`. 
+
 * **Android 8.0 (API 26) o superior.**
 
 ---
@@ -45,9 +46,10 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 ## ⚠️ AVISO LEGAL
 
 Esta herramienta está diseñada EXCLUSIVAMENTE para: 
-- Pruebas de seguridad autorizadas 
-- Auditoría de sus propias redes 
-- Investigación educativa
+
+* Pruebas de seguridad autorizadas 
+* Auditoría de sus propias redes 
+* Investigación educativa
 
 El uso no autorizado en sistemas sin consentimiento es ILEGAL. El autor no asume ninguna responsabilidad por el mal uso.
 
