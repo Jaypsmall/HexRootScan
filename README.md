@@ -31,7 +31,7 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 
 ---
 
-## 🛠️ Architecture and Technologies
+## 🛠️ Arquitectura y Tecnologías
 
 *   **Platform:** Native Android (Jetpack Compose for a fluid, modern interface).
 
