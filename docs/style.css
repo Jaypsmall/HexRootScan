@@ -269,6 +269,15 @@ img {
 }
 
 
+.brand-logo-img {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    object-fit: cover;
+    margin-right: 8px;
+}
+
+
 /* =========================================================
    NAV LINKS
 ========================================================= */
@@ -565,6 +574,24 @@ img {
     font-size: 9px;
 }
 
+
+
+.hero-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 480px;
+}
+
+.hero-logo-img {
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
+    object-fit: cover;
+}
 
 /* =========================================================
    TERMINAL
@@ -1819,5 +1846,6 @@ footer {
 
         gap: 8px;
     }
+
 
 }
