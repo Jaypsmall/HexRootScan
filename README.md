@@ -26,10 +26,18 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 </p>
 
 *   **🌐 Reconocimiento de dominios (Whois y Dig):** Consulta la información de registro de dominios y analiza los registros DNS de cualquier host en segundos.
+<p align="center">
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/06479efb852cee8d677cda5389b0e6cad1095a22/docs/asset/5a.png" width="30%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/06479efb852cee8d677cda5389b0e6cad1095a22/docs/asset/5r.png" width="30%" />
+</p>
 
 *   **🔥 Escáner de vulnerabilidades (Nikto):** Identifica configuraciones inseguras y archivos peligrosos en los servidores web objetivo.
 
 *   **🛡️ Integración con Shodan:** Busque directamente en la base de datos de Shodan para identificar los dispositivos conectados y los puertos expuestos utilizando su clave API.
+<p align="center">
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/4a.png" width="30%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/4r.png" width="30%" />
+</p>
 
 *   **⚡ Listo para acceso root:** Diseñado para funcionar de forma nativa con privilegios de superusuario (`su`) para maximizar el rendimiento de las herramientas de red.
 
