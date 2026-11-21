@@ -8,11 +8,12 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 </a>
 
 ---
-
-<p align="center" width="100%">
-  <img src="https://github.com/Jaypsmall/HexRootScan/blob/master-suite/asset/image2.png" width="30%" />
-  <img src="https://github.com/Jaypsmall/HexRootScan/blob/master-suite/asset/image3.png" width="30%" />
-  <img src="https://github.com/Jaypsmall/HexRootScan/blob/master-suite/asset/image4.png" width="30%" />
+<p align="center">
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/1a.png" width="30%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/8a.png" width="30%" /> &nbsp;&nbsp;
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/1r.png" width="30%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/8r.png" width="30%" />
+</p>
 </p>
 
 ---
@@ -40,6 +41,10 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 </p>
 
 *   **⚡ Listo para acceso root:** Diseñado para funcionar de forma nativa con privilegios de superusuario (`su`) para maximizar el rendimiento de las herramientas de red.
+<p align="center">
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/2a.png" width="30%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/2r.png" width="30%" />
+</p>
 
 ---
 
