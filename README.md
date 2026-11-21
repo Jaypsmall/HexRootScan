@@ -4,16 +4,16 @@
 Es una potente herramienta de auditoría de redes y pruebas de penetración diseñada exclusivamente para dispositivos Android. Con una interfaz limpia, oscura y optimizada, permite a desarrolladores y entusiastas de la ciberseguridad realizar análisis avanzados directamente desde la palma de su mano.
 
 <a href="https://github.com/Jaypsmall/HexRootScan/releases/download/v1.0.1/HexRootScan_v2.0.0.apk">
- <img src="https://img.shields.io/badge/DOWNLOAD_HEXROOTSCAN_v1.0.4_APK-181717?style=flat&logo=android&logoColor=green" alt="Download Release">
+ <img src="https://github.com/Jaypsmall/HexRootScan/blob/6091ffd09c98c6d78ade4514a87a4e7a07f42717/docs/asset/HexRootScanLogo.jpg" width="40%" alt="Download Release">
 </a>
 
 ---
 <p align="center">
-  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/1a.png" width="30%" />
-  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/8a.png" width="30%" /> &nbsp;&nbsp;
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/1a.png" width="40%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/8a.png" width="40%" />
 <p align="center">
-  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/1r.png" width="30%" />
-  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/8r.png" width="30%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/1r.png" width="40%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/8r.png" width="40%" />
 </p>
 
 ---
@@ -33,6 +33,10 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 </p>
 
 *   **🔥 Escáner de vulnerabilidades (Nikto):** Identifica configuraciones inseguras y archivos peligrosos en los servidores web objetivo.
+<p align="center">
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/6a.png" width="30%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/6r.png" width="30%" />
+</p>
 
 *   **🛡️ Integración con Shodan:** Busque directamente en la base de datos de Shodan para identificar los dispositivos conectados y los puertos expuestos utilizando su clave API.
 <p align="center">
