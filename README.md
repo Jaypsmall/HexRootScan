@@ -11,9 +11,9 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 <p align="center">
   <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/1a.png" width="30%" />
   <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/8a.png" width="30%" /> &nbsp;&nbsp;
+<p align="center">
   <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/1r.png" width="30%" />
   <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/8r.png" width="30%" />
-</p>
 </p>
 
 ---
