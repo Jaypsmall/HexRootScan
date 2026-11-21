@@ -20,6 +20,10 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 ## 🚀 Key Features
 
 *   **🕵️‍♂️ Análisis avanzado de red (Nmap integrado):** Realiza escaneos de puertos, detección de servicios y mapeo de red de forma nativa.
+<p align="center">
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/3a.png" width="30%" />
+  <img src="https://github.com/Jaypsmall/HexRootScan/blob/127eb517122c39f8255e506a78451aabd2413f39/docs/asset/3r.png" width="30%" />
+</p>
 
 *   **🌐 Reconocimiento de dominios (Whois y Dig):** Consulta la información de registro de dominios y analiza los registros DNS de cualquier host en segundos.
 
