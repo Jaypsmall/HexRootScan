@@ -5,7 +5,9 @@ Es una potente herramienta de auditoría de redes y pruebas de penetración dise
 
 <a href="https://github.com/Jaypsmall/HexRootScan/releases/download/v1.0.1/HexRootScan_v2.0.0.apk">
  <img src="https://github.com/Jaypsmall/HexRootScan/blob/6091ffd09c98c6d78ade4514a87a4e7a07f42717/docs/asset/HexRootScanLogo.jpg" width="40%" alt="Download Release">
-</a>
+</a> <a href="https://github.com/Jaypsmall/HexRootScan/releases/download/v1.0.1/HexRootScan_v2.0.0.apk">
+    <img src="https://img.shields.io/badge/📥_DESCARGAR_HEXROOTSCAN_v1.0.4_APK-181717?style=for-the-badge&logo=android&logoColor=00FF66" alt="Descargar APK">
+  </a>
 
 ---
 <p align="center">
